@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Google Maps Demo ver 1.0</title>
+  <link rel="stylesheet"	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBsYVLaGllEz-XZYoF6xv_wqPsrG0k7oFs&libraries=places&signed_in=false"></script>
+  <script src="https://www.google.com/jsapi"></script>
+  <script src="js/app.js" charset="utf-8"></script>
+  <script src="js/daynightoverlay.js" charset="utf-8"></script>
+  <script src="js/voiceRecognition.js" charset="utf-8"></script>
+</head>
+<body>
+	<div class="container">
+    <div class="col-sm-12">
+      <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+      <div id="ccp-button"></div>
+  		<div id="map"></div>
+      <div id="left-panel">
+        <h2>Results</h2>
+        <ul id="places"></ul>
+        <button id="more">More results</button>
+      </div>
+      <div id="elevation_chart"></div>
+  	</div>
+	</div>
+</body>
+</html>
