@@ -71,10 +71,12 @@ function initMap() {
 
     $('#mySidenav').css('width', '0%');
     console.log('dd');
-    $('#map').css('width', '100%');
+    // $('#map').css('width', '100%');
+    $('#bottomBar').hide();
 
     // When a place clicked
     closeNav();
+    openRightBar();
 
     setTimeout(
       function()
@@ -117,14 +119,13 @@ function initMap() {
 
         infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
         infowindow.open(map, marker);
-      }, 1000);
+      }, 500);
     // $("#bottomDest").show();
 
   });
 }
 
 function gasMap() {
-  $('#map').empty();
   mapCanvasId = 'gasMap';
 
   map = new google.maps.Map(document.getElementById(mapCanvasId), {
@@ -184,12 +185,17 @@ function closeNav() {
 }
 // Sidebar end
 
+function openRightBar() {
+  $('#rightBar').css('width', '50%');
+}
+
 $(document).ready(function() {
   initMap();
 
   $('#cancelBtn').hide();
   $('.gasMenu').hide();
   $("#bottomDest").hide();
+  $('#menuList').hide();
 
   $('#map').click(function() {
     closeNav();

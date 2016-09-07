@@ -34,7 +34,7 @@
 }
 
 #pac-input:focus {
-  padding-left: 10px;
+  padding-left: 30px;
 }
 
 .pac-container .pac-item {
@@ -103,6 +103,20 @@ body {
     font-size: 36px;
     margin-left: 50px;
     z-index: -1;
+}
+
+.rightBar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #FFF;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 00px;
+  text-align:right;
 }
 
 @media screen and (max-height: 450px) {
