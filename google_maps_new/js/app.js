@@ -5,6 +5,10 @@ var infowindow;
 var mapCanvasId;
 var marker;
 
+var autocompletePlaceName;
+var autocompleteLocation;
+
+var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 
 var styleArray = [
@@ -80,7 +84,7 @@ function autoComplete() {
     $('#map').css('float', 'left');
     $('#mySidenav').css('width', '0%');
     $('#map').css('width', '35%');
-
+    $('#goToAutocomplete').show();
     $('#bottomBar').hide();
 
     // When a place clicked
@@ -98,8 +102,6 @@ function autoComplete() {
           window.alert("Autocomplete's returned place contains no geometry");
           return;
         }
-
-        var autocompletePlaceName = place.address_components[0].long_name;
 
         // If the place has a geometry, then present it on a map.
         if (place.geometry.viewport) {
@@ -126,6 +128,9 @@ function autoComplete() {
             (place.address_components[2] && place.address_components[2].short_name || '')
           ].join(' ');
         }
+
+        autocompletePlaceName = place.name;
+        autocompleteLocation = place.geometry.location;
 
         $('#autocompletePlaceName').html(place.name);
         $('#autocompletePlaceCity').html(address);
@@ -182,8 +187,12 @@ function createMarker(place) {
 
 // Sidebar start
 function openNav() {
+  if (autocompleteClicked == 1) {
+    $('#mySidenav').css('width', '100%');
+  } else {
+    $('#mySidenav').css('width', '90%');
+  }
   $('#microphone').css('height', '80%');
-  $('#mySidenav').css('width', '90%');
   $('#map').css('width', '10%');
   // $('#bottomBar').css('width', '10%');
   $('#menuList').show("fast");
@@ -202,6 +211,15 @@ function openRightBar() {
   $('#rightBar').css('width', '65%');
 }
 
+function inputFocusOrGoToAutocomplete() {
+  $('#mySidenav').css('width', '100%');
+  $('#pac-input').css('width', '85%');
+  $('#microphone').css('width', '6%');
+  $('#cancelBtn').show();
+  $('#mySidenav').css('background-color', '#D4E1E4');
+  $('.gasMenu').show();
+}
+
 $(document).ready(function() {
   initMap();
   // gasMap();
@@ -210,6 +228,7 @@ $(document).ready(function() {
   $('.gasMenu').hide();
   $("#bottomDest").hide();
   $('#menuList').hide();
+  $('#goToAutocomplete').hide();
 
   $('#map').click(function() {
     closeNav();
@@ -218,12 +237,7 @@ $(document).ready(function() {
   $('#pac-input').focus(function() {
     $('.headerBox').css('height', '0');
     $('.menuDefault').hide();
-    $('#mySidenav').css('width', '100%');
-    $('#pac-input').css('width', '85%');
-    $('#microphone').css('width', '6%');
-    $('#cancelBtn').show();
-    $('#mySidenav').css('background-color', '#D4E1E4');
-    $('.gasMenu').show();
+    inputFocusOrGoToAutocomplete()
   });
 
   $('#cancelBtn').click(function() {
@@ -257,13 +271,38 @@ $(document).ready(function() {
   $('#goToAutocomplete').click(function() {
     $('#rightBar').css('width', '0%');
     $('#menuList').show("fast");
-    $('#mySidenav').css('width', '100%');
-    $('#pac-input').css('width', '85%');
-    $('#microphone').css('width', '6%');
-    $('#cancelBtn').show();
-    $('#mySidenav').css('background-color', '#D4E1E4');
-    $('.gasMenu').show();
     $('#favoritesModal').show();
+    inputFocusOrGoToAutocomplete()
+  })
+
+  $('#closeRightSidebarBtn').click(function() {
+    $('#rightBar').css('width', '0%');
+    $('#map').css('width', '100%');
+    $('#map').css('float', 'right');
+    $('#bottomBar').show();
+    $('#goToAutocomplete').hide();
+    autocompleteClicked = 1;
+    map.panTo(currentLocation);
+    var marker = new google.maps.Marker({
+      map: map,
+      position: currentLocation
+      // anchorPoint: new google.maps.Point(0, -29)
+    });
+  });
+
+  $('#OpenFavoriteAskModal').click(function() {
+    $('#favoriteName').val(autocompletePlaceName);
+  })
+
+  $('#favoriteNameComplete').click(function() {
+    var favoriteName = $('#favoriteName').val();
+    var favoriteObject = { 'name': favoriteName, 'coords': autocompleteLocation };
+
+    if (localStorage.getItem(favoriteName) === null) {
+      localStorage.setItem(favoriteName, JSON.stringify(favoriteObject));
+    } else {
+      alert("즐겨찾기가 이미 존재합니다");
+    }
   })
 
   // $("#bottomDestContainer").hover(function(){
