@@ -3,6 +3,8 @@ var myLatLng;
 var gasMap;
 var infowindow;
 var mapCanvasId;
+var marker;
+
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 
 var styleArray = [
@@ -45,14 +47,11 @@ function initMap() {
 
   infowindow = new google.maps.InfoWindow();
 
-  var marker = new google.maps.Marker({
+  marker = new google.maps.Marker({
     map: map,
     position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
   });
-
-  var input = /** @type {!HTMLInputElement} */(
-            document.getElementById('pac-input'));
 
   // Traffic Layer 추가
   var trafficLayer = new google.maps.TrafficLayer();
@@ -63,19 +62,29 @@ function initMap() {
   //     map: map
   // });
 
+  autoComplete();
+}
+
+function autoComplete() {
+
+  var input = /** @type {!HTMLInputElement} */(
+            document.getElementById('pac-input'));
+
   // Autocomplete
   var autocomplete = new google.maps.places.Autocomplete(input);
   autocomplete.bindTo('bounds', map);
-
   autocomplete.addListener('place_changed', function() {
 
+    closeNav();
+    $('#map').css('transition', '0');
+    $('#map').css('float', 'left');
     $('#mySidenav').css('width', '0%');
-    console.log('dd');
-    // $('#map').css('width', '100%');
+    $('#map').css('width', '35%');
+
     $('#bottomBar').hide();
 
     // When a place clicked
-    closeNav();
+
     openRightBar();
 
     setTimeout(
@@ -90,7 +99,8 @@ function initMap() {
           return;
         }
 
-        console.log(place.geometry.location);
+        var autocompletePlaceName = place.address_components[0].long_name;
+
         // If the place has a geometry, then present it on a map.
         if (place.geometry.viewport) {
           map.fitBounds(place.geometry.viewport);
@@ -116,6 +126,9 @@ function initMap() {
             (place.address_components[2] && place.address_components[2].short_name || '')
           ].join(' ');
         }
+
+        $('#autocompletePlaceName').html(place.name);
+        $('#autocompletePlaceCity').html(address);
 
         infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
         infowindow.open(map, marker);
@@ -186,11 +199,12 @@ function closeNav() {
 // Sidebar end
 
 function openRightBar() {
-  $('#rightBar').css('width', '50%');
+  $('#rightBar').css('width', '65%');
 }
 
 $(document).ready(function() {
   initMap();
+  // gasMap();
 
   $('#cancelBtn').hide();
   $('.gasMenu').hide();
@@ -240,11 +254,22 @@ $(document).ready(function() {
     }
   })
 
+  $('#goToAutocomplete').click(function() {
+    $('#rightBar').css('width', '0%');
+    $('#menuList').show("fast");
+    $('#mySidenav').css('width', '100%');
+    $('#pac-input').css('width', '85%');
+    $('#microphone').css('width', '6%');
+    $('#cancelBtn').show();
+    $('#mySidenav').css('background-color', '#D4E1E4');
+    $('.gasMenu').show();
+    $('#favoritesModal').show();
+  })
+
   // $("#bottomDestContainer").hover(function(){
   //     $("#bottomDest").slideToggle();
   // }, function(){
   //     $("#bottomDest").slideToggle();
   // });
-
 
 })
