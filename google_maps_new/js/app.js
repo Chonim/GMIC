@@ -230,6 +230,19 @@ $(document).ready(function() {
   $('#menuList').hide();
   $('#goToAutocomplete').hide();
 
+  $('.openFavoriteList').click(function() {
+    if ($('#favoriteListContents > a').html() == null) {
+      for(var i = 0; i < localStorage.length; i++) {
+        $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem">&#9733; ' + localStorage.key(i) + '</a>');
+        console.log(localStorage.key(i));
+      }
+    }
+  })
+
+  $('.favoriteListContentsItem').click(function() {
+    $('.favoriteListCloseBtn').trigger("click");
+  })
+
   $('#map').click(function() {
     closeNav();
   });
@@ -300,6 +313,7 @@ $(document).ready(function() {
 
     if (localStorage.getItem(favoriteName) === null) {
       localStorage.setItem(favoriteName, JSON.stringify(favoriteObject));
+      $('#favoriteAddBtn > a').html("&#9733;");
     } else {
       alert("즐겨찾기가 이미 존재합니다");
     }
