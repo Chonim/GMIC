@@ -7,6 +7,7 @@ var marker;
 
 var autocompletePlaceName;
 var autocompleteLocation;
+var address;
 
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
@@ -120,7 +121,7 @@ function autoComplete() {
         marker.setPosition(place.geometry.location);
         marker.setVisible(true);
 
-        var address = '';
+        address = '';
         if (place.address_components) {
           address = [
             (place.address_components[0] && place.address_components[0].short_name || ''),
@@ -214,10 +215,10 @@ function openRightBar() {
 function inputFocusOrGoToAutocomplete() {
   $('#mySidenav').css('width', '100%');
   $('#pac-input').css('width', '85%');
-  $('#microphone').css('width', '6%');
   $('#cancelBtn').show();
   $('#mySidenav').css('background-color', '#D4E1E4');
   $('.gasMenu').show();
+  $('#favoriteAddBtn > a').html("&#9734;");
 }
 
 $(document).ready(function() {
@@ -258,7 +259,6 @@ $(document).ready(function() {
     $('.menuDefault').show();
     $('#mySidenav').css('width', '90%');
     $('#pac-input').css('width', '90%');
-    $('#microphone').css({"height":"80%", "width":"7%"});
     $('#cancelBtn').hide();
     $('#mySidenav').css('background-color', '#FFF');
     $('.gasMenu').hide()
@@ -309,13 +309,23 @@ $(document).ready(function() {
 
   $('#favoriteNameComplete').click(function() {
     var favoriteName = $('#favoriteName').val();
-    var favoriteObject = { 'name': favoriteName, 'coords': autocompleteLocation };
+    var favoriteObject = { 'name': favoriteName, 'coords': autocompleteLocation, 'address': address };
 
     if (localStorage.getItem(favoriteName) === null) {
       localStorage.setItem(favoriteName, JSON.stringify(favoriteObject));
       $('#favoriteAddBtn > a').html("&#9733;");
     } else {
       alert("즐겨찾기가 이미 존재합니다");
+    }
+  })
+
+  $('#navigationBottomBar').click(function() {
+    if ($('#navigationBottomBar').height() == 48) {
+      console.log($('#navigationBottomBar').height());
+      $(this).css('height','400px');
+    } else {
+      console.log($('#navigationBottomBar').height());
+      $(this).css('height','50px');
     }
   })
 

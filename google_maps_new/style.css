@@ -320,6 +320,21 @@ body {
   border-top: 1px solid #D2E0E4;
 }
 
-#favoriteListContents a:hover{
+#favoriteListContents a:hover {
     color: #f1f1f1;
+}
+
+#navigationBottomBar {
+  position: absolute;
+  bottom: 0;
+  height: 400px;
+  width: 100%;
+  border: 1px solid red;
+  transition:  0.5s;
+}
+
+.navigationBottomBarHeader {
+  position: absolute;
+  bottom: 0;
+  padding: 50px;
 }
