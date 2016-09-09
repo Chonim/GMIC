@@ -361,6 +361,7 @@ body {
 }
 
 .navigationBottomBarBody {
+  transition: 0.5s;
   height:600px;
   background-color: #EEF3F4;
 }

@@ -189,6 +189,8 @@ function createMarker(place) {
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.setContent(place.name);
     infowindow.open(map, this);
+    map.setCenter(this.getPosition());
+    map.setZoom(10);
   });
 }
 // Place Search End
@@ -237,10 +239,8 @@ function inputFocusOrGoToAutocomplete() {
 
 function navigationBottomBarToggle(e) {
   if ($('#navigationBottomBar').height() < 60) {
-    console.log($('#navigationBottomBar').height());
     $('#navigationBottomBar').css('height','680px');
   } else {
-    console.log($('#navigationBottomBar').height());
     $('#navigationBottomBar').css('height','50px');
   }
 }
@@ -407,6 +407,13 @@ $(document).ready(function() {
 
   $('.navigationBottomBarTitle').click(function() {
     navigationBottomBarToggle();
+    if ($('.navigationBottomBarBody').height() < 60) {
+      $('.navigationBottomBarBody').css('height','680px');
+      $('.navigationBottomBarBody').show('fast');
+    } else {
+      $('.navigationBottomBarBody').css('height','0px');
+      $('.navigationBottomBarBody').hide('slow');
+    }
   })
 
   $('#realDeparture').click(function() {
