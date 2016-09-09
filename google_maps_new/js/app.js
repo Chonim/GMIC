@@ -297,7 +297,7 @@ function showTravelDetails() {
 
 
   // $('#estimatedTime')
-  $('.showTime').html(parseInt(arrivalHours) + ":"+ arrivalMinutes);
+  $('.showTime').html(parseInt(arrivalHours) + ":"+ (arrivalMinutes < 10 ? "0" + arrivalMinutes : arrivalMinutes));
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
 
