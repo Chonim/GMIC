@@ -90,11 +90,14 @@ body {
     display: block;
     transition: 0.3s;
     border-top: 1px solid #D2E0E4;
-
 }
 
 .sidenav a:hover{
     color: #f1f1f1;
+}
+
+.menuListItem img {
+  height: 25px;
 }
 
 .sidenav .closebtn {

@@ -9,11 +9,13 @@ var autocompletePlaceName;
 var autocompleteLocation;
 var address;
 var destinationDetails;
+var directionsDisplay;
 
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 var date = new Date();
 
+// Map style
 var styleArray = [
   {
     featureType: 'all',
@@ -91,7 +93,6 @@ function autoComplete() {
     $('#bottomBar').hide();
 
     // When a place clicked
-
     openRightBar();
 
     setTimeout(
@@ -247,7 +248,7 @@ function navigationBottomBarToggle(e) {
 
 function getEstimatedDetails() {
   var directionsService = new google.maps.DirectionsService;
-  var directionsDisplay = new google.maps.DirectionsRenderer;
+  directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
     origin: currentLocation,
     destination: autocompleteLocation,
@@ -404,6 +405,7 @@ $(document).ready(function() {
   })
 
   $('#realDeparture').click(function() {
+    directionsDisplay.setMap(map);
     closeRightBar();
     navigationBottomBarToggle();
     $('#realDeparture').html("닫기");
