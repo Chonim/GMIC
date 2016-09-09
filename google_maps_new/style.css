@@ -262,7 +262,6 @@ body {
 }
 
 .autocompletePlaceLine {
-  width: 100%;
   border-bottom: 2px solid #DCE7E9;
 }
 
@@ -283,9 +282,10 @@ body {
   border-bottom: 2px solid #DCE7E9;
 }
 
-.reserveDepart {
-  padding-top: 20px;
+.reserveDepart > button {
+  margin-top: 50px;
   padding-bottom: 20px;
+  height: 100px;
 }
 
 #favoriteAskModal {
@@ -308,6 +308,8 @@ body {
 
 #favoriteListContents {
   background-color: #FFF;
+  overflow-y: scroll;
+  height: 100%;
 }
 
 #favoriteListContents a {
@@ -327,14 +329,76 @@ body {
 #navigationBottomBar {
   position: absolute;
   bottom: 0;
-  height: 400px;
+  height: 680px;
   width: 100%;
-  border: 1px solid red;
   transition:  0.5s;
+  z-index: 999;
+  text-align: center;
+  font-size: 35px;
+}
+
+.navigationBottomBarTitle {
+  height: 50px;
+  background-color: #FFF;
+  z-index: 999;
 }
 
 .navigationBottomBarHeader {
   position: absolute;
   bottom: 0;
   padding: 50px;
+}
+
+.downImage > img {
+  height: 30px;
+}
+
+#estimatedTime, #estimatedDistance {
+}
+
+.showTime {
+  font-weight: bold;
+}
+
+.navigationBottomBarBody {
+  height:600px;
+  background-color: #EEF3F4;
+}
+
+.destinationInfo {
+  height:100%;
+  border-right: 1px solid #DBDFE0;
+}
+
+.navigationBottomBarBodyRight {
+  height: 100%;
+}
+
+#destinationName {
+  font-size: 25px;
+  text-align: left;
+  padding-left: 30px;
+}
+
+#addWaypoints {
+  height: 20%;
+  border-bottom: 1px solid #DBDFE0;
+}
+
+.middleFunctions {
+  height: 50%;
+  border-left: 1px solid #DBDFE0;
+  border-bottom: 1px solid #DBDFE0;
+}
+
+.bottomBottons {
+  height: 30%;
+}
+
+.bottomBottons > div, .bottomBottons > div > button {
+  height: 80%;
+}
+
+#openNav {
+  z-index: 9999;
 }

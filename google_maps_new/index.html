@@ -79,13 +79,15 @@
         <div class="col-sm-12" id="autocompletePlaceName"></div>
         <div class="col-sm-12" id="autocompletePlaceCity">서울특별시</div>
         <div class="col-sm-12" id="autocompletePlaceDistance">0.5킬로미터 떨어져 있음</div>
+        <div class="col-sm-2"></div>
         <div class="col-sm-8 center-block autocompletePlaceLine"></div>
+        <div class="col-sm-2"></div>
         <div class="col-sm-12 autocompletePlacePhoneNumber" id="">
           415-425-7623
         </div>
         <div class="col-sm-12 afterPhoneNumberLine"></div>
         <div class="col-sm-4 reserveDepart"><button type="button" class="btn btn-default btn-block">예약</button></div>
-        <div class="col-sm-8 reserveDepart"><button type="button" class="btn btn-info btn-block">출발 </button></div>
+        <div class="col-sm-8 reserveDepart"><button type="button" id="departureBtn" class="btn btn-info btn-block">출발 </button></div>
       </div>
     </div>
 
@@ -203,8 +205,58 @@
     </div>
 
     <!-- Navigation header -->
-    <div id="navigationBottomBar">efw
-      <div id="panel" class="navigationBottomBarHeader">bb
+    <div id="navigationBottomBar">
+      <div class="navigationBottomBarTitle">
+        <div class="col-sm-1">
+          <span style="font-size:30px;cursor:pointer;" onclick="openNav()" id="openNav"> <span class="glyphicon glyphicon-search"></span></span>
+        </div>
+        <div class="col-sm-2">
+
+        </div>
+        <div class="col-sm-1 downImage">
+          <!-- <img src="image/down.png" /> -->
+        </div>
+        <div class="col-sm-1" id="estimatedTime">
+          <!-- 소요시간 -->
+        </div>
+        <div class="col-sm-2 showTime">
+          <!-- 목적지 도착 시간 -->
+        </div>
+        <div class="col-sm-2" id="estimatedDistance">
+          <!-- 거리 -->
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+      </div>
+      <div class="navigationBottomBarBody">
+        <div class="col-sm-6 destinationInfo">
+          <div id="destinationName">
+          </div>
+          <div id="destinationRoutes">
+          </div>
+        </div>
+        <div class="col-sm-6 navigationBottomBarBodyRight">
+          <div id="addWaypoints">경유지 추가
+          </div>
+          <div class="middleFunctions">
+            <div class="col-sm-4 middleFunctions">
+              <div id="showPath">경로</div>
+            </div>
+            <div class="col-sm-4">
+              <div id="showPath">ETA 전송</div>
+            </div>
+            <div class="col-sm-4">
+              <div id="showPath">종료</div>
+            </div>
+          </div>
+          <div class="bottomBottons col-sm-12" id="">
+            <div class="col-sm-4"><button type="button" class="btn btn-default btn-block">예약</button></div>
+            <div class="col-sm-8"><button type="button" id="realDeparture" class="btn btn-info btn-block">출발</button></div>
+          </div>
+        </div>
+      </div>
+      <div id="panel" class="navigationBottomBarHeader">
       </div>
     </div>​
   </div>

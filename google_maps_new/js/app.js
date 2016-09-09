@@ -8,9 +8,11 @@ var marker;
 var autocompletePlaceName;
 var autocompleteLocation;
 var address;
+var destinationDetails;
 
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
+var date = new Date();
 
 var styleArray = [
   {
@@ -138,11 +140,16 @@ function autoComplete() {
 
         infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
         infowindow.open(map, marker);
+
+        getEstimatedDetails();
+
       }, 500);
     // $("#bottomDest").show();
 
   });
 }
+
+//////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
 
 function gasMap() {
   mapCanvasId = 'gasMap';
@@ -212,6 +219,13 @@ function openRightBar() {
   $('#rightBar').css('width', '65%');
 }
 
+function closeRightBar() {
+  $('#rightBar').css('width', '0%');
+  $('#map').css('width', '100%');
+  $('#map').css('float', 'right');
+  map.panTo(currentLocation);
+}
+
 function inputFocusOrGoToAutocomplete() {
   $('#mySidenav').css('width', '100%');
   $('#pac-input').css('width', '85%');
@@ -219,6 +233,74 @@ function inputFocusOrGoToAutocomplete() {
   $('#mySidenav').css('background-color', '#D4E1E4');
   $('.gasMenu').show();
   $('#favoriteAddBtn > a').html("&#9734;");
+}
+
+function navigationBottomBarToggle(e) {
+  if ($('#navigationBottomBar').height() < 60) {
+    console.log($('#navigationBottomBar').height());
+    $('#navigationBottomBar').css('height','680px');
+  } else {
+    console.log($('#navigationBottomBar').height());
+    $('#navigationBottomBar').css('height','50px');
+  }
+}
+
+function getEstimatedDetails() {
+  var directionsService = new google.maps.DirectionsService;
+  var directionsDisplay = new google.maps.DirectionsRenderer;
+  directionsService.route({
+    origin: currentLocation,
+    destination: autocompleteLocation,
+    unitSystem: google.maps.UnitSystem.METRIC,
+    travelMode: google.maps.TravelMode.DRIVING
+  }, function(response, status) {
+    if (status === google.maps.DirectionsStatus.OK) {
+      destinationDetails = response.routes[0].legs[0];
+      directionsDisplay.setMap(map);
+      directionsDisplay.setDirections(response);
+      map.setZoom(20);
+      // console.log(response.routes[0].legs[0]);
+      console.log(destinationDetails);
+      console.log(directionsDisplay);
+      $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
+    } else {
+      window.alert('Directions request failed due to ' + status);
+    }
+  });
+}
+
+function showTravelDetails() {
+  // Time and Distance
+  var currentHours = date.getHours();
+  var currentMinutes = date.getMinutes();
+  var arrivalHours = 0;
+  var arrivalMinutes = 0;
+  var estimatedTime = destinationDetails.duration.value;
+  var estimatedHours = estimatedTime/3600;
+  var estimatedMinutes = parseInt(estimatedTime/60);
+
+  if (estimatedHours < 1) {
+    $('#estimatedTime').html(estimatedMinutes + "분");
+  } else {
+    $('#estimatedTime').html(estimatedHours + "시간 " + estimatedMinutes + "분");
+  }
+
+  arrivalMinutes = estimatedMinutes + currentMinutes;
+  arrivalHours = estimatedHours + currentHours;
+
+  if (arrivalMinutes > 59) {
+    arrivalHours++;
+    arrivalMinutes-=60;
+  }
+
+  // Panel body
+
+
+  // $('#estimatedTime')
+  $('.showTime').html(parseInt(arrivalHours) + ":"+ arrivalMinutes);
+  $('#estimatedDistance').html(destinationDetails.distance.text);
+  $('#destinationName').html(autocompletePlaceName);
+
 }
 
 $(document).ready(function() {
@@ -230,6 +312,7 @@ $(document).ready(function() {
   $("#bottomDest").hide();
   $('#menuList').hide();
   $('#goToAutocomplete').hide();
+  $('#navigationBottomBar').hide();
 
   $('.openFavoriteList').click(function() {
     if ($('#favoriteListContents > a').html() == null) {
@@ -289,13 +372,10 @@ $(document).ready(function() {
   })
 
   $('#closeRightSidebarBtn').click(function() {
-    $('#rightBar').css('width', '0%');
-    $('#map').css('width', '100%');
-    $('#map').css('float', 'right');
+    closeRightBar();
     $('#bottomBar').show();
     $('#goToAutocomplete').hide();
     autocompleteClicked = 1;
-    map.panTo(currentLocation);
     var marker = new google.maps.Marker({
       map: map,
       position: currentLocation
@@ -319,14 +399,20 @@ $(document).ready(function() {
     }
   })
 
-  $('#navigationBottomBar').click(function() {
-    if ($('#navigationBottomBar').height() == 48) {
-      console.log($('#navigationBottomBar').height());
-      $(this).css('height','400px');
-    } else {
-      console.log($('#navigationBottomBar').height());
-      $(this).css('height','50px');
-    }
+  $('#departureBtn').click(function() {
+    showTravelDetails();
+    $('#navigationBottomBar').show('slow');
+    navigationBottomBarToggle();
+  })
+
+  $('.navigationBottomBarTitle').click(function() {
+    navigationBottomBarToggle();
+  })
+
+  $('#realDeparture').click(function() {
+    closeRightBar();
+    navigationBottomBarToggle();
+    $('#realDeparture').html("닫기");
   })
 
   // $("#bottomDestContainer").hover(function(){
