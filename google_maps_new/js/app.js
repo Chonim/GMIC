@@ -351,19 +351,6 @@ $(document).ready(function() {
     gasMap();
   })
 
-  $("#bottomDest").click(function() {
-    // alert($("#bottomDest").height());
-    if ($("#bottomDest").height() == 48) {
-      $("#bottomDest").animate (
-        { height: "500px"}
-      )
-    } else if ($("#bottomDest").height() == 498) {
-      $("#bottomDest").animate (
-        { height: "50px"}
-      )
-    }
-  })
-
   $('#goToAutocomplete').click(function() {
     $('#rightBar').css('width', '0%');
     $('#menuList').show("fast");
@@ -408,11 +395,11 @@ $(document).ready(function() {
   $('.navigationBottomBarTitle').click(function() {
     navigationBottomBarToggle();
     if ($('.navigationBottomBarBody').height() < 60) {
-      $('.navigationBottomBarBody').css('height','680px');
-      $('.navigationBottomBarBody').show('fast');
+      // $('.navigationBottomBarBody').css('height','680px');
+      // $('.navigationBottomBarBody').show('fast');
     } else {
-      $('.navigationBottomBarBody').css('height','0px');
-      $('.navigationBottomBarBody').hide('slow');
+      // $('.navigationBottomBarBody').css('height','0px');
+      // $('.navigationBottomBarBody').hide('slow');
     }
   })
 
