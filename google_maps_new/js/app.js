@@ -41,9 +41,7 @@ var styleArray = [
 ];
 
 function initMap() {
-
   mapCanvasId = 'map'
-
   var mapOptions = {
     center: currentLocation,
     zoom: 19,
@@ -85,10 +83,8 @@ function autoComplete() {
   autocomplete.addListener('place_changed', function() {
 
     closeNav();
-    $('#map').css('transition', '0');
     $('#map').css('float', 'left');
     $('#mySidenav').css('width', '0%');
-    $('#map').css('width', '35%');
     $('#goToAutocomplete').show();
     $('#bottomBar').hide();
 
@@ -98,22 +94,16 @@ function autoComplete() {
     setTimeout(
       function()
       {
+
         //do something special
         infowindow.close();
-        marker.setVisible(false);
+        marker.setVisible(true);
         var place = autocomplete.getPlace();
         if (!place.geometry) {
           window.alert("Autocomplete's returned place contains no geometry");
           return;
         }
 
-        // If the place has a geometry, then present it on a map.
-        if (place.geometry.viewport) {
-          map.fitBounds(place.geometry.viewport);
-        } else {
-          map.setCenter(place.geometry.location);
-          map.setZoom(17);  // Why 17? Because it looks good.
-        }
         // marker.setIcon(/** @type {google.maps.Icon} */({
         //   url: place.icon,
         //   size: new google.maps.Size(71, 71),
@@ -121,8 +111,6 @@ function autoComplete() {
         //   anchor: new google.maps.Point(17, 34),
         //   scaledSize: new google.maps.Size(35, 35)
         // }));
-        marker.setPosition(place.geometry.location);
-        marker.setVisible(true);
 
         address = '';
         if (place.address_components) {
@@ -135,6 +123,11 @@ function autoComplete() {
 
         autocompletePlaceName = place.name;
         autocompleteLocation = place.geometry.location;
+
+        marker = new google.maps.Marker({
+          map: map,
+          position: autocompleteLocation
+        });
 
         $('#autocompletePlaceName').html(place.name);
         $('#autocompletePlaceCity').html(address);
@@ -190,6 +183,7 @@ function createMarker(place) {
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.setContent(place.name);
     infowindow.open(map, this);
+    console.log(this.getPosition());
     map.setCenter(this.getPosition());
     map.setZoom(10);
   });
@@ -212,14 +206,16 @@ function openNav() {
 function closeNav() {
   $('#microphone').css('height', '0%');
   $('#mySidenav').css('width', '0%');
-  $('#map').css('width', '100%');
   $('#bottomBar').css('width', '100%');
+  $('#map').css('width', '100%');
   $('#menuList').hide("slow");
 }
 // Sidebar end
 
 function openRightBar() {
+  $('#map').css('width', '35%');
   $('#rightBar').css('width', '65%');
+  console.log(map.getBounds())
 }
 
 function closeRightBar() {
@@ -256,13 +252,12 @@ function getEstimatedDetails() {
     travelMode: google.maps.TravelMode.DRIVING
   }, function(response, status) {
     if (status === google.maps.DirectionsStatus.OK) {
-      destinationDetails = response.routes[0].legs[0];
-      directionsDisplay.setMap(map);
-      directionsDisplay.setDirections(response);
       map.setZoom(20);
+      map.setCenter(autocompleteLocation);
+      destinationDetails = response.routes[0].legs[0];
+      // directionsDisplay.setMap(map);
+      directionsDisplay.setDirections(response);
       // console.log(response.routes[0].legs[0]);
-      console.log(destinationDetails);
-      console.log(directionsDisplay);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
     } else {
       window.alert('Directions request failed due to ' + status);
@@ -330,6 +325,7 @@ $(document).ready(function() {
 
   $('#map').click(function() {
     closeNav();
+    $('#map').css('width', '100%');
   });
 
   $('#pac-input').focus(function() {

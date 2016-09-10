@@ -52,7 +52,7 @@ input[type=text]{
 }
 
 #map {
-  height: 630px;
+  height: 760px;
   width: 100%;
   transition: 0.5s;
   float: right;
