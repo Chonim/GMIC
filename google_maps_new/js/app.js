@@ -213,7 +213,9 @@ function gasMap() {
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
   $('#header').show('fast');
-  directionsDisplay.setMap(null);
+  if (typeof directionsDisplay !== "undefined") {
+    directionsDisplay.setMap(null);
+  }
   infowindow = new google.maps.InfoWindow();
 
   var service = new google.maps.places.PlacesService(map);
@@ -228,7 +230,7 @@ function gasMap() {
 function callback(results, status) {
 
   if (status === google.maps.places.PlacesServiceStatus.OK) {
-    for (var i = 0; i < results.length; i++) {
+    for (var i = 0; i < 10; i++) {
       createMarker(results[i]);
     }
 
