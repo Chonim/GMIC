@@ -307,6 +307,12 @@ function showGasStationsInfo() {
   }
 }
 
+function backFromGas() {
+  initMap();
+  $('#header').hide('fast');
+  openNav();
+}
+
 function deleteMarkers(markersArray) {
   for (var i = 0; i < markersArray.length; i++) {
     markersArray[i].setMap(null);
@@ -322,6 +328,7 @@ function openNav() {
     $('#mySidenav').css('width', '90%');
   }
   $('#microphone').css('height', '80%');
+  $('#map').css('float', 'right');
   $('#map').css('width', '10%');
   // $('#bottomBar').css('width', '10%');
   $('#menuList').show("fast");
@@ -333,6 +340,10 @@ function closeNav() {
   $('#bottomBar').css('width', '100%');
   $('#map').css('width', '100%');
   $('#menuList').hide("slow");
+  window.setTimeout(function() {
+    google.maps.event.trigger(map, "resize");
+    map.setCenter(currentLocation);
+  }, 500);
 }
 // Sidebar end
 
@@ -451,7 +462,11 @@ $(document).ready(function() {
 
   $('#map').click(function() {
     closeNav();
-    $('#map').css('width', '100%');
+    // $('#map').css('width', '100%');
+    // window.setTimeout(function() {
+    //   google.maps.event.trigger(map, "resize");
+    //   map.setZoom(14);
+    // }, 500);
   });
 
   $('#pac-input').focus(function() {
@@ -542,6 +557,10 @@ $(document).ready(function() {
     if (e.which == 13) {
       // When enter pressed
     }
+  })
+
+  $('#header-back').click(function() {
+    backFromGas();
   })
 
   // $("#bottomDestContainer").hover(function(){
