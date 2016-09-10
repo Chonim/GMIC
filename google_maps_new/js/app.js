@@ -213,6 +213,7 @@ function gasMap() {
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
   $('#header').show('fast');
+  directionsDisplay.setMap(null);
   infowindow = new google.maps.InfoWindow();
 
   var service = new google.maps.places.PlacesService(map);
