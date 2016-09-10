@@ -3,6 +3,7 @@
 ##Features
 * Interactive UI/UX
 * Navigation function
+* Get current position button
 * Autocomplete
 * Finding nearby gas stations
 
