@@ -313,6 +313,7 @@ function showGasStationsInfo() {
 function backFromGas() {
   initMap();
   $('#header').hide('fast');
+  $('#gasStationInfoBar').hide('fast');
   openNav();
 }
 
@@ -339,6 +340,12 @@ function openNav() {
 
 function closeNav() {
   $('#microphone').css('height', '0%');
+  if($('#mySidenav').width() > 1) {
+    window.setTimeout(function() {
+      google.maps.event.trigger(map, "resize");
+      map.setCenter(currentLocation);
+    }, 500);
+  }
   $('#mySidenav').css('width', '0%');
   $('#bottomBar').css('width', '100%');
   $('#map').css('width', '100%');
