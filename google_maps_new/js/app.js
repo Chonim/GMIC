@@ -4,6 +4,7 @@ var gasMap;
 var infowindow;
 var mapCanvasId;
 var marker;
+var place;
 
 var autocompletePlaceName;
 var autocompleteLocation;
@@ -156,28 +157,13 @@ function autoComplete() {
         //do something special
         infowindow.close();
         marker.setVisible(true);
-        var place = autocomplete.getPlace();
+        place = autocomplete.getPlace();
         if (!place.geometry) {
           window.alert("Autocomplete's returned place contains no geometry");
           return;
         }
 
-        // marker.setIcon(/** @type {google.maps.Icon} */({
-        //   url: place.icon,
-        //   size: new google.maps.Size(71, 71),
-        //   origin: new google.maps.Point(0, 0),
-        //   anchor: new google.maps.Point(17, 34),
-        //   scaledSize: new google.maps.Size(35, 35)
-        // }));
-
-        address = '';
-        if (place.address_components) {
-          address = [
-            (place.address_components[0] && place.address_components[0].short_name || ''),
-            (place.address_components[1] && place.address_components[1].short_name || ''),
-            (place.address_components[2] && place.address_components[2].short_name || '')
-          ].join(' ');
-        }
+        getPlaceAddress();
 
         autocompletePlaceName = place.name;
         autocompleteLocation = place.geometry.location;
@@ -201,49 +187,57 @@ function autoComplete() {
   });
 }
 
+function getPlaceAddress() {
+  address = '';
+  if (place.address_components) {
+    address = [
+      (place.address_components[0] && place.address_components[0].short_name || ''),
+      (place.address_components[1] && place.address_components[1].short_name || ''),
+      (place.address_components[2] && place.address_components[2].short_name || '')
+    ].join(' ');
+  }
+}
+
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
 
 function gasMap() {
-  // mapCanvasId = 'gasMap';
 
-  // map = new google.maps.Map(document.getElementById(mapCanvasId), {
-  //   center: currentLocation,
-  //   zoom: 15
-  // });
-
+  $('#header').show('fast');
   infowindow = new google.maps.InfoWindow();
 
   var service = new google.maps.places.PlacesService(map);
   service.nearbySearch({
     location: currentLocation,
-    radius: 500,
+    radius: 3000,
     types: ['gas_station']
   }, callback);
 }
 
 // Place Search Start
 function callback(results, status) {
+  $('#map').css('float', 'left');
+  $('#map').css('width', '45%');
   if (status === google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
+      map.setZoom(15);
       createMarker(results[i]);
-      console.log(results[i]);
     }
   }
 }
 
 function createMarker(place) {
-  var placeLoc = place.geometry.location;
   var marker = new google.maps.Marker({
+    position: place.geometry.location,
     map: map,
-    position: place.geometry.location
+    icon: 'image/gas-station.png'
+    // icon: place.icon
   });
+  console.log(place.vicinity);
 
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.setContent(place.name);
     infowindow.open(map, this);
-    console.log(this.getPosition());
     map.setCenter(this.getPosition());
-    map.setZoom(10);
   });
 }
 // Place Search End
@@ -360,7 +354,6 @@ function showTravelDetails() {
 
 $(document).ready(function() {
   initMap();
-  // gasMap();
 
   $('#cancelBtn').hide();
   $('.gasMenu').hide();
@@ -368,6 +361,7 @@ $(document).ready(function() {
   $('#menuList').hide();
   $('#goToAutocomplete').hide();
   $('#navigationBottomBar').hide();
+  $('#header').hide();
 
   $('.openFavoriteList').click(function() {
     if ($('#favoriteListContents > a').html() == null) {
@@ -405,6 +399,7 @@ $(document).ready(function() {
 
   $('.gasMenu').click(function() {
     gasMap();
+    closeNav();
   })
 
   $('#goToAutocomplete').click(function() {
