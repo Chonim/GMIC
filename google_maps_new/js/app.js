@@ -68,6 +68,7 @@ function initMap() {
     position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
   });
+  markersArray.push(marker);
 
   // Traffic Layer 추가
   var trafficLayer = new google.maps.TrafficLayer();
@@ -178,6 +179,8 @@ function autoComplete() {
           map: map,
           position: autocompleteLocation
         });
+        deleteMarkers(markersArray);
+        markersArray.push(marker);
 
         $('#autocompletePlaceName').html(place.name);
         $('#autocompletePlaceCity').html(address);
@@ -250,6 +253,7 @@ function createMarker(place) {
     icon: 'image/gas-station.png'
     // icon: place.icon
   });
+  markersArray.push(marker);
   console.log(place.vicinity);
   // console.log(place);
 
@@ -416,7 +420,6 @@ function showTravelDetails() {
   $('.showTime').html(parseInt(arrivalHours) + ":"+ (arrivalMinutes < 10 ? "0" + arrivalMinutes : arrivalMinutes));
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
-
 }
 
 $(document).ready(function() {

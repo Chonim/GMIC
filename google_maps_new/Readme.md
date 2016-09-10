@@ -10,7 +10,6 @@
 * Places API
 * Directions API
 * Distance Matrix API
-<!-- * Geocoding API -->
 
 ##Icon sources
 * [Flat Icon](http://www.flaticon.com/)
