@@ -12,6 +12,12 @@ var address;
 var destinationDetails;
 var directionsDisplay;
 
+var currentLocationArray = [];
+var gasStationTextArray = [];
+var gasStationArray = [];
+var distanceMatrixArray = [];
+var markersArray = [];
+
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 var countryRestrict = {'country': 'us'};
@@ -199,9 +205,10 @@ function getPlaceAddress() {
 }
 
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
-
 function gasMap() {
 
+  $('#map').css('float', 'left');
+  $('#map').css('width', '45%');
   $('#header').show('fast');
   infowindow = new google.maps.InfoWindow();
 
@@ -215,17 +222,28 @@ function gasMap() {
 
 // Place Search Start
 function callback(results, status) {
-  $('#map').css('float', 'left');
-  $('#map').css('width', '45%');
+
   if (status === google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
-      map.setZoom(15);
       createMarker(results[i]);
     }
+
+    window.setTimeout(function() {
+      google.maps.event.trigger(map, "resize");
+      map.setZoom(14);
+      map.panTo(marker.getPosition());
+    }, 500);
+
+    // distanceMatrix();
   }
 }
 
 function createMarker(place) {
+  if (currentLocationArray.length < 10) {
+    currentLocationArray.push(currentLocation);
+    gasStationArray.push(place.geometry.location);
+    gasStationTextArray.push([place.name, place.vicinity])
+  }
   var marker = new google.maps.Marker({
     position: place.geometry.location,
     map: map,
@@ -233,14 +251,61 @@ function createMarker(place) {
     // icon: place.icon
   });
   console.log(place.vicinity);
+  // console.log(place);
 
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.setContent(place.name);
     infowindow.open(map, this);
-    map.setCenter(this.getPosition());
   });
 }
 // Place Search End
+
+function distanceMatrix() {
+  var geocoder = new google.maps.Geocoder;
+  var service = new google.maps.DistanceMatrixService;
+  service.getDistanceMatrix({
+    origins: currentLocationArray,
+    destinations:  gasStationArray,
+    travelMode: google.maps.TravelMode.DRIVING,
+    unitSystem: google.maps.UnitSystem.METRIC,
+    avoidHighways: false,
+    avoidTolls: false
+  }, function(response, status) {
+    if (status !== google.maps.DistanceMatrixStatus.OK) {
+      alert('Error was: ' + status);
+    } else {
+      var originList = response.originAddresses;
+      var destinationList = response.destinationAddresses;
+      var outputDiv = document.getElementById('output');
+      deleteMarkers(markersArray);
+
+      for (var i = 0; i < originList.length; i++) {
+        var results = response.rows[i].elements;
+        for (var j = 0; j < results.length; j++) {
+          if (distanceMatrixArray.length < 10) {
+            distanceMatrixArray.push([results[j].distance.text, results[j].duration.text]);
+          }
+        }
+      }
+
+      // Show gas stations info
+      showGasStationsInfo();
+    }
+  });
+}
+
+function showGasStationsInfo() {
+  for (i=0; i<distanceMatrixArray.length; i++) {
+    console.log(gasStationTextArray[i][0] + gasStationTextArray[i][1] + gasStationArray[i] + distanceMatrixArray[i][0] + distanceMatrixArray[i][1]);
+  }
+}
+
+function deleteMarkers(markersArray) {
+  for (var i = 0; i < markersArray.length; i++) {
+    markersArray[i].setMap(null);
+  }
+  markersArray = [];
+}
 
 // Sidebar start
 function openNav() {
@@ -274,6 +339,7 @@ function closeRightBar() {
   $('#rightBar').css('width', '0%');
   $('#map').css('width', '100%');
   $('#map').css('float', 'right');
+  google.maps.event.trigger(map, "resize");
   map.panTo(currentLocation);
 }
 
@@ -315,6 +381,7 @@ function getEstimatedDetails() {
       window.alert('Directions request failed due to ' + status);
     }
   });
+  google.maps.event.trigger(map, "resize");
   map.setCenter(autocompleteLocation);
 }
 
@@ -398,8 +465,8 @@ $(document).ready(function() {
   })
 
   $('.gasMenu').click(function() {
-    gasMap();
     closeNav();
+    gasMap();
   })
 
   $('#goToAutocomplete').click(function() {
@@ -455,9 +522,13 @@ $(document).ready(function() {
   })
 
   $('#realDeparture').click(function() {
-    directionsDisplay.setMap(map);
     closeRightBar();
     navigationBottomBarToggle();
+    window.setTimeout(function() {
+      google.maps.event.trigger(map, "resize");
+      map.setZoom(14);
+      directionsDisplay.setMap(map);
+    }, 500);
     $('#realDeparture').html("닫기");
   });
 
