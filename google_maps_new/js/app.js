@@ -126,7 +126,6 @@ function addYourLocationButton(map, marker)
     map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
 }
 
-
 function autoComplete() {
 
   var input = /** @type {!HTMLInputElement} */(
