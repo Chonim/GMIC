@@ -13,6 +13,7 @@ var directionsDisplay;
 
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
+var countryRestrict = {'country': 'us'};
 
 var date = new Date();
 
@@ -118,6 +119,7 @@ function addYourLocationButton(map, marker)
         var latlng = new google.maps.LatLng(currentLocation);
         marker.setPosition(latlng);
         map.setCenter(latlng);
+        map.setZoom(20);
         clearInterval(animationInterval);
         $('#you_location_img').css('background-position', '-144px 0px');
     });
@@ -132,7 +134,9 @@ function autoComplete() {
             document.getElementById('pac-input'));
 
   // Autocomplete
-  var autocomplete = new google.maps.places.Autocomplete(input);
+  var autocomplete = new google.maps.places.Autocomplete(input, {
+    componentRestrictions: countryRestrict
+  });
   autocomplete.bindTo('bounds', map);
   autocomplete.addListener('place_changed', function() {
 
@@ -200,12 +204,12 @@ function autoComplete() {
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
 
 function gasMap() {
-  mapCanvasId = 'gasMap';
+  // mapCanvasId = 'gasMap';
 
-  map = new google.maps.Map(document.getElementById(mapCanvasId), {
-    center: currentLocation,
-    zoom: 15
-  });
+  // map = new google.maps.Map(document.getElementById(mapCanvasId), {
+  //   center: currentLocation,
+  //   zoom: 15
+  // });
 
   infowindow = new google.maps.InfoWindow();
 
@@ -459,6 +463,12 @@ $(document).ready(function() {
     closeRightBar();
     navigationBottomBarToggle();
     $('#realDeparture').html("닫기");
+  });
+
+  $('#pac-input').keypress(function(e) {
+    if (e.which == 13) {
+      // When enter pressed
+    }
   })
 
   // $("#bottomDestContainer").hover(function(){
