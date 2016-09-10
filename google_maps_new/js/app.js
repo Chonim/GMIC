@@ -14,7 +14,7 @@ var directionsDisplay;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
-var gasStationArray = [];
+var gasStationLatlngArray = [];
 var distanceMatrixArray = [];
 var markersArray = [];
 
@@ -113,10 +113,6 @@ function addYourLocationButton(map, marker)
     secondChild.id = 'you_location_img';
     firstChild.appendChild(secondChild);
 
-    google.maps.event.addListener(map, 'dragend', function() {
-        $('#you_location_img').css('background-position', '0px 0px');
-    });
-
     firstChild.addEventListener('click', function() {
         var imgX = '0';
         var animationInterval = setInterval(function(){
@@ -213,6 +209,7 @@ function gasMap() {
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
   $('#header').show('fast');
+  $('#gasStationInfoBar').css('width', '55%');
   if (typeof directionsDisplay !== "undefined") {
     directionsDisplay.setMap(null);
   }
@@ -240,14 +237,14 @@ function callback(results, status) {
       map.panTo(marker.getPosition());
     }, 500);
 
-    // distanceMatrix();
+    distanceMatrix();
   }
 }
 
 function createMarker(place) {
   if (currentLocationArray.length < 10) {
     currentLocationArray.push(currentLocation);
-    gasStationArray.push(place.geometry.location);
+    gasStationLatlngArray.push(place.geometry.location);
     gasStationTextArray.push([place.name, place.vicinity])
   }
   var marker = new google.maps.Marker({
@@ -272,7 +269,7 @@ function distanceMatrix() {
   var service = new google.maps.DistanceMatrixService;
   service.getDistanceMatrix({
     origins: currentLocationArray,
-    destinations:  gasStationArray,
+    destinations:  gasStationLatlngArray,
     travelMode: google.maps.TravelMode.DRIVING,
     unitSystem: google.maps.UnitSystem.METRIC,
     avoidHighways: false,
@@ -284,7 +281,6 @@ function distanceMatrix() {
       var originList = response.originAddresses;
       var destinationList = response.destinationAddresses;
       var outputDiv = document.getElementById('output');
-      deleteMarkers(markersArray);
 
       for (var i = 0; i < originList.length; i++) {
         var results = response.rows[i].elements;
@@ -303,7 +299,14 @@ function distanceMatrix() {
 
 function showGasStationsInfo() {
   for (i=0; i<distanceMatrixArray.length; i++) {
-    console.log(gasStationTextArray[i][0] + gasStationTextArray[i][1] + gasStationArray[i] + distanceMatrixArray[i][0] + distanceMatrixArray[i][1]);
+    var gasStationText = "<div class='gasStation col-sm-10'><img src='image/gas-station.png' />"
+                       + "<span width='60%'><strong>" + gasStationTextArray[i][0] + "</strong><br />" // 이름
+                       + gasStationTextArray[i][1] + "</span><span>" // 주소
+                       + distanceMatrixArray[i][0] + "<br />" // 거리
+                       + distanceMatrixArray[i][1] + "</span>" // 시간
+                       + "</div>";
+    $('#gasInfoPanel').append(gasStationText);
+    console.log(gasStationTextArray[i][0] + gasStationTextArray[i][1] + gasStationLatlngArray[i] + distanceMatrixArray[i][0] + distanceMatrixArray[i][1]);
   }
 }
 
@@ -340,10 +343,6 @@ function closeNav() {
   $('#bottomBar').css('width', '100%');
   $('#map').css('width', '100%');
   $('#menuList').hide("slow");
-  window.setTimeout(function() {
-    google.maps.event.trigger(map, "resize");
-    map.setCenter(currentLocation);
-  }, 500);
 }
 // Sidebar end
 
@@ -357,8 +356,10 @@ function closeRightBar() {
   $('#rightBar').css('width', '0%');
   $('#map').css('width', '100%');
   $('#map').css('float', 'right');
-  google.maps.event.trigger(map, "resize");
-  map.panTo(currentLocation);
+  window.setTimeout(function() {
+    google.maps.event.trigger(map, "resize");
+    map.setCenter(currentLocation);
+  }, 500);
 }
 
 function inputFocusOrGoToAutocomplete() {
@@ -462,11 +463,11 @@ $(document).ready(function() {
 
   $('#map').click(function() {
     closeNav();
-    // $('#map').css('width', '100%');
     // window.setTimeout(function() {
     //   google.maps.event.trigger(map, "resize");
-    //   map.setZoom(14);
+    //   map.setCenter(currentLocation);
     // }, 500);
+    // $('#map').css('width', '100%');
   });
 
   $('#pac-input').focus(function() {
