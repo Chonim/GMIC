@@ -195,7 +195,7 @@ function autoComplete() {
 
         getEstimatedDetails();
 
-      }, 500);
+      }, 800);
     // $("#bottomDest").show();
 
   });
@@ -273,7 +273,7 @@ function closeNav() {
 function openRightBar() {
   $('#map').css('width', '35%');
   $('#rightBar').css('width', '65%');
-  console.log(map.getBounds())
+  // console.log(map.getBounds())
 }
 
 function closeRightBar() {
@@ -301,6 +301,7 @@ function navigationBottomBarToggle(e) {
 }
 
 function getEstimatedDetails() {
+  directionsService = null; // reset directions
   var directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
@@ -311,7 +312,6 @@ function getEstimatedDetails() {
   }, function(response, status) {
     if (status === google.maps.DirectionsStatus.OK) {
       map.setZoom(20);
-      map.setCenter(autocompleteLocation);
       destinationDetails = response.routes[0].legs[0];
       // directionsDisplay.setMap(map);
       directionsDisplay.setDirections(response);
@@ -321,6 +321,7 @@ function getEstimatedDetails() {
       window.alert('Directions request failed due to ' + status);
     }
   });
+  map.setCenter(autocompleteLocation);
 }
 
 function showTravelDetails() {
