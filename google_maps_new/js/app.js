@@ -398,6 +398,7 @@ function getEstimatedDetails() {
   }, function(response, status) {
     if (status === google.maps.DirectionsStatus.OK) {
       map.setZoom(20);
+      directionsDisplay.setMap(map);
       destinationDetails = response.routes[0].legs[0];
       // directionsDisplay.setMap(map);
       directionsDisplay.setDirections(response);
@@ -554,9 +555,9 @@ $(document).ready(function() {
     closeRightBar();
     navigationBottomBarToggle();
     window.setTimeout(function() {
+      map.setCenter(currentLocation);
+      map.setZoom(20);
       google.maps.event.trigger(map, "resize");
-      map.setZoom(14);
-      directionsDisplay.setMap(map);
     }, 500);
     $('#realDeparture').html("닫기");
   });
