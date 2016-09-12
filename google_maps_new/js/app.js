@@ -220,6 +220,7 @@ function gasMap() {
 
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
+  $('#header-title').html('주유소');
   $('#header').show('fast');
   $('#gasStationInfoBar').show('fast');
   $('#gasStationInfoBar').css('width', '55%');
@@ -605,5 +606,9 @@ $(document).ready(function() {
     initMap();
     $('#navigationBottomBar').hide();
     $('#bottomBar').show();
+  })
+
+  $('.close-home-work').click(function() {
+    $('#header').hide('fast');
   })
 })
