@@ -79,11 +79,6 @@ input[type=text]{
   background-color: #D4E1E4;
 }
 
-#microphone {
-  width: auto;
-  height: 45px;
-}
-
 #map {
   height: 760px;
   width: 100%;
@@ -368,6 +363,29 @@ html, body {
   height: 50px;
 }
 
+#closeAskModal {
+  width: 80%;
+  height: 90%;
+  margin: auto auto;
+}
+
+#closeAskModal .modal-title {
+  font-size: 50px;
+  margin-top: 20%;
+  border-bottom: #FFF;
+}
+
+#closeAskModal > div > div {
+  background-color: #FFF;
+}
+
+#closeAskModal .modal-body {
+  height: 300px;
+  text-align: center;
+  color: #9B9B9B;
+  font-size: 30px;
+}
+
 #favoriteName {
   width: 100%;
 }
@@ -459,11 +477,13 @@ html, body {
   opacity: 0.3;
 }
 
-.middleFunctions {
+.middleFunctions a, .middleFunctions a:hover {
   height: 50%;
   width: 100%;
   padding-top: 30px;
   border-bottom: 1px solid #DBDFE0;
+  text-decoration: none;
+  color: #333333;
 }
 
 .bottomBottons {
@@ -477,4 +497,9 @@ html, body {
 
 #openNav {
   z-index: 9999;
+}
+
+#microphone {
+  width: auto;
+  height: 45px;
 }

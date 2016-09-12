@@ -600,10 +600,10 @@ $(document).ready(function() {
     $('#header-title').html('집 & 직장');
   })
 
-  // $("#bottomDestContainer").hover(function(){
-  //     $("#bottomDest").slideToggle();
-  // }, function(){
-  //     $("#bottomDest").slideToggle();
-  // });
-
+  $('#navagationClose').click(function() {
+    closeRightBar();
+    initMap();
+    $('#navigationBottomBar').hide();
+    $('#bottomBar').show();
+  })
 })
