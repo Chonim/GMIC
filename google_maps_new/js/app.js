@@ -181,6 +181,11 @@ function autoComplete() {
         $('#autocompletePlaceName').html(place.name);
         $('#autocompletePlaceCity').html(address);
 
+        // Change star color if exists
+        if (localStorage.getItem(place.name) !== null) {
+          $('#favoriteAddBtn > a').html("&#9733;");
+        }
+
         infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
         infowindow.open(map, marker);
 
