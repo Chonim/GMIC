@@ -6,6 +6,8 @@ var mapCanvasId;
 var marker;
 var place;
 
+var input;
+var autocomplete;
 var autocompletePlaceName;
 var autocompleteLocation;
 var address;
@@ -65,6 +67,11 @@ function initMap() {
 
   marker = new google.maps.Marker({
     map: map,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      strokeColor: "#73C3D6",
+      scale: 5
+    },
     position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
   });
@@ -134,11 +141,11 @@ function addYourLocationButton(map, marker)
 
 function autoComplete() {
 
-  var input = /** @type {!HTMLInputElement} */(
+  input = /** @type {!HTMLInputElement} */(
             document.getElementById('pac-input'));
 
   // Autocomplete
-  var autocomplete = new google.maps.places.Autocomplete(input, {
+  autocomplete = new google.maps.places.Autocomplete(input, {
     componentRestrictions: countryRestrict
   });
   autocomplete.bindTo('bounds', map);
@@ -214,6 +221,7 @@ function gasMap() {
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
   $('#header').show('fast');
+  $('#gasStationInfoBar').show('fast');
   $('#gasStationInfoBar').css('width', '55%');
   if (typeof directionsDisplay !== "undefined") {
     directionsDisplay.setMap(null);
@@ -263,7 +271,9 @@ function createMarker(place) {
   // console.log(place);
 
   google.maps.event.addListener(marker, 'click', function() {
-    infowindow.setContent(place.name);
+    infowindow.setContent("<p><b>"+ place.name + "</b></p>" + "<p>" + place.vicinity + "<p>");
+    input = place.name;
+    autocomplete = place.vicinity;
     infowindow.open(map, this);
   });
 }
@@ -579,6 +589,15 @@ $(document).ready(function() {
 
   $('#header-back').click(function() {
     backFromGas();
+  })
+
+  $('.gasStation').click(function() {
+    console.log(this);
+  })
+
+  $('.home-office').click(function() {
+    $('#header').show('fast');
+    $('#header-title').html('집 & 직장');
   })
 
   // $("#bottomDestContainer").hover(function(){

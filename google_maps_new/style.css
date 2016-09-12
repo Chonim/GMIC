@@ -51,6 +51,7 @@
 .input-wrapper {
   background-color: #FFF;
   height: 60px;
+  font-size: 20px;
 }
 
 #pac-input {
