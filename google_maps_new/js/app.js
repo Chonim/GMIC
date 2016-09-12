@@ -70,7 +70,7 @@ function initMap() {
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       strokeColor: "#73C3D6",
-      scale: 5
+      scale: 8
     },
     position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
@@ -245,12 +245,8 @@ function callback(results, status) {
       createMarker(results[i]);
     }
 
-    window.setTimeout(function() {
-      google.maps.event.trigger(map, "resize");
-      map.setZoom(14);
-      map.panTo(marker.getPosition());
-    }, 500);
-
+    map.setZoom(14);
+    resizeMap();
     distanceMatrix();
   }
 }
@@ -357,10 +353,7 @@ function openNav() {
 function closeNav() {
   $('#microphone').css('height', '0%');
   if($('#mySidenav').width() > 1) {
-    window.setTimeout(function() {
-      google.maps.event.trigger(map, "resize");
-      map.setCenter(currentLocation);
-    }, 500);
+    resizeMap();
   }
   $('#mySidenav').css('width', '0%');
   $('#bottomBar').css('width', '100%');
@@ -379,10 +372,7 @@ function closeRightBar() {
   $('#rightBar').css('width', '0%');
   $('#map').css('width', '100%');
   $('#map').css('float', 'right');
-  window.setTimeout(function() {
-    google.maps.event.trigger(map, "resize");
-    map.setCenter(currentLocation);
-  }, 500);
+  resizeMap();
 }
 
 function inputFocusOrGoToAutocomplete() {
@@ -465,6 +455,13 @@ function showTravelDetails() {
   $('.showTime').html(parseInt(arrivalHours) + ":"+ (arrivalMinutes < 10 ? "0" + arrivalMinutes : arrivalMinutes));
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
+}
+
+function resizeMap() {
+  window.setTimeout(function() {
+    google.maps.event.trigger(map, "resize");
+    map.setCenter(currentLocation);
+  }, 500);
 }
 
 $(document).ready(function() {
@@ -574,11 +571,8 @@ $(document).ready(function() {
   $('#realDeparture').click(function() {
     closeRightBar();
     navigationBottomBarToggle();
-    window.setTimeout(function() {
-      map.setCenter(currentLocation);
-      map.setZoom(20);
-      google.maps.event.trigger(map, "resize");
-    }, 500);
+    resizeMap();
+    map.setZoom(20);
     $('#realDeparture').html("닫기");
   });
 
@@ -610,5 +604,13 @@ $(document).ready(function() {
 
   $('.close-home-work').click(function() {
     $('#header').hide('fast');
+  })
+
+  $('#header-close').click(function() {
+    $('#header').hide('fast');
+    $('#gasStationInfoBar').css('width', '0%');
+    $('#map').css('width', '100%');
+    initMap();
+    resizeMap();
   })
 })
