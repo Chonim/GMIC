@@ -52,6 +52,8 @@ var styleArray = [
 ];
 
 function initMap() {
+  var viewportHeight = window.innerHeight;
+  $('#map').css('height', viewportHeight-60);
   mapCanvasId = 'map'
   var mapOptions = {
     center: currentLocation,
@@ -74,6 +76,17 @@ function initMap() {
     },
     position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
+
+
+  });
+  var circle = new google.maps.Circle({
+    radius: 50,
+    center: currentLocation,
+    map: map,
+    fillColor: '#333333',
+    fillOpacity: 0.15,
+    strokeColor: '#333333',
+    strokeOpacity: 0.6
   });
   markersArray.push(marker);
 
@@ -110,11 +123,11 @@ function addYourLocationButton(map, marker)
     controlDiv.appendChild(firstChild);
 
     var secondChild = document.createElement('div');
-    secondChild.style.margin = '5px';
-    secondChild.style.width = '18px';
-    secondChild.style.height = '18px';
-    secondChild.style.backgroundImage = 'url(https://maps.gstatic.com/tactile/mylocation/mylocation-sprite-1x.png)';
-    secondChild.style.backgroundSize = '180px 18px';
+    secondChild.style.margin = '0px';
+    secondChild.style.width = '32px';
+    secondChild.style.height = '32px';
+    secondChild.style.backgroundImage = 'url(image/located.png)';
+    secondChild.style.backgroundSize = '32px 32px';
     secondChild.style.backgroundPosition = '0px 0px';
     secondChild.style.backgroundRepeat = 'no-repeat';
     secondChild.id = 'you_location_img';
@@ -132,11 +145,11 @@ function addYourLocationButton(map, marker)
         map.setCenter(latlng);
         map.setZoom(20);
         clearInterval(animationInterval);
-        $('#you_location_img').css('background-position', '-144px 0px');
+        // $('#you_location_img').css('background-position', '-144px 0px');
     });
 
     controlDiv.index = 1;
-    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
+    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(controlDiv);
 }
 
 function autoComplete() {
@@ -465,6 +478,26 @@ function resizeMap() {
 }
 
 $(document).ready(function() {
+//   var msg = new SpeechSynthesisUtterance();
+// var voices = window.speechSynthesis.getVoices();
+// console.log(voices);
+// msg.voice = voices[8]; // Note: some voices don't support altering params
+// msg.voiceURI = 'native';
+// msg.volume = 1; // 0 to 1
+// msg.rate = 1; // 0.1 to 10
+// msg.pitch = 1; //0 to 2
+// msg.lang = 'en-US';
+// msg.text = '1298 Howard Street, San Francisco1.1 km 4 mins';
+// msg.onend = function(e) {
+//   console.log('Finished in ' + event.elapsedTime + ' seconds.');
+// };
+// speechSynthesis.speak(msg);
+
+var voicelist = responsiveVoice.getVoices();
+console.log(voicelist[0].name);
+responsiveVoice.setDefaultVoice(voicelist[0].name);
+responsiveVoice.speak("hello world", voicelist[0].name);
+
   initMap();
 
   $('#cancelBtn').hide();
