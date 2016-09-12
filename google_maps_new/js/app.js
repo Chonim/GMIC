@@ -407,6 +407,12 @@ function getEstimatedDetails() {
       destinationDetails = response.routes[0].legs[0];
       // directionsDisplay.setMap(map);
       directionsDisplay.setDirections(response);
+      var steps = destinationDetails.steps;
+      for (i=0; i<steps.length; i++) {
+        // console.log(steps[i]);
+        // console.log(steps[i].maneuver + steps[i].duration.text + steps[i].distance.text + steps[i].instructions);
+        console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
+      }
       // console.log(response.routes[0].legs[0]);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
     } else {
@@ -465,7 +471,6 @@ $(document).ready(function() {
     if ($('#favoriteListContents > a').html() == null) {
       for(var i = 0; i < localStorage.length; i++) {
         $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem">&#9733; ' + localStorage.key(i) + '</a>');
-        console.log(localStorage.key(i));
       }
     }
   })
