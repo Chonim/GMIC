@@ -507,7 +507,6 @@ $(document).ready(function() {
   $('#goToAutocomplete').click(function() {
     $('#rightBar').css('width', '0%');
     $('#menuList').show("fast");
-    $('#favoritesModal').show();
     inputFocusOrGoToAutocomplete()
   })
 
