@@ -13,7 +13,9 @@ var autocompleteLocation;
 var address;
 var destinationDetails;
 var directionsDisplay;
+var directionsService;
 var steps;
+var line;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -409,7 +411,7 @@ function navigationBottomBarToggle(e) {
 
 function getEstimatedDetails() {
   directionsService = null; // reset directions
-  var directionsService = new google.maps.DirectionsService;
+  directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
     origin: currentLocation,
@@ -431,6 +433,7 @@ function getEstimatedDetails() {
       }
       // console.log(response.routes[0].legs[0]);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
+      createPolyline(response);
 
     } else {
       window.alert('Directions request failed due to ' + status);
@@ -439,6 +442,58 @@ function getEstimatedDetails() {
   map.setCenter(autocompleteLocation);
   google.maps.event.trigger(map, "resize");
 }
+
+function calcRoute() {
+    var request = {
+        origin: $("#routeFrom").val(),
+        destination: $("#routeTo").val(),
+        travelMode: "DRIVING"
+    };
+    directionsService.route(request, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(response);
+            //document.getElementById('Gresponse').innerHTML = JSON.stringify(response);
+            createPolyline(response);
+        }
+    });
+};
+
+function createPolyline(directionResult) {
+  line = new google.maps.Polyline({
+      path: directionResult.routes[0].overview_path,
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.5,
+      strokeWeight: 4,
+      icons: [{
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            strokeColor: '#393'
+          },
+          offset: '100%'
+        }]
+  });
+  line.setMap(map);
+  animate(directionResult.routes[0].overview_path);
+};
+
+function animate(path) {
+    var count = 0;
+    var i = 0;
+    window.setInterval(function() {
+      count = (count + 1) % path.length;
+
+      var icons = line.get('icons');
+      icons[0].offset = (count / (path.length / 100)) + '%';
+      map.setCenter(path[i])
+      // console.log(path[i])
+      line.set('icons', icons);
+      i++;
+      if (i == path.length) {
+      	i = 0;
+      }
+  }, 20);
+};
 
 function simulateRoute() {
   $('#header').show();
@@ -452,11 +507,30 @@ function simulateRoute() {
     // console.log(steps.length - index);
     console.log(index);
     if (index > 0) {
-      map.setCenter(steps[steps.length - index].end_location);
+      map.setCenter(steps[steps.length - index].start_location);
       $('#header-title').html(steps[steps.length - index].instructions);
-      var text = $('#header-title').html();
-      var msg = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(msg);
+      var text = $('#header-title').text();
+
+      var voices;
+      var msg;
+
+      function loadVoices() {
+        voices = speechSynthesis.getVoices();
+        console.log(voices);
+
+        msg.voice = voices[2];
+        msg.text = text;
+
+        // Queue this utterance.
+        window.speechSynthesis.speak(msg);
+        console.log(msg);
+      }
+
+      msg = new SpeechSynthesisUtterance();
+      // console.log(msg.voice);
+      // window.speechSynthesis.onvoiceschanged = function(e) {
+        loadVoices();
+      // };
 
       index--;
     } else {
@@ -474,26 +548,50 @@ function showTravelDetails() {
   var estimatedTime = destinationDetails.duration.value;
   var estimatedHours = estimatedTime/3600;
   var estimatedMinutes = parseInt(estimatedTime/60);
+  var durationText = '';
 
-  if (estimatedHours < 1) {
-    $('#estimatedTime').html(estimatedMinutes + "분");
-  } else {
-    $('#estimatedTime').html(estimatedHours + "시간 " + estimatedMinutes + "분");
+
+  // if (estimatedHours < 1) {
+  //   $('#estimatedTime').html(estimatedMinutes + "분");
+  // } else {
+  //   $('#estimatedTime').html(estimatedHours + "시간 " + estimatedMinutes + "분");
+  // }
+
+  durationText = destinationDetails.duration.text;
+  durationText.replace("hour", "시간");
+  var mapObj = {
+    days:"일",
+    day:"일",
+    hours:"시간",
+    hour:"시간",
+    mins:"분",
+    min:"분",
   }
+  durationText = durationText.replace(/days|day|hours|hour|mins|min/gi, function(matched) {
+    return mapObj[matched];
+  })
+  // durationText.replace("min", "분");
+  $('#estimatedTime').html(durationText);
 
   arrivalMinutes = estimatedMinutes + currentMinutes;
   arrivalHours = estimatedHours + currentHours;
-
   if (arrivalMinutes > 59) {
     arrivalHours++;
-    arrivalMinutes-=60;
+    arrivalMinutes = arrivalMinutes % 60;
   }
+  if (arrivalHours > 23) {
+    arrivalHours-=24;
+  }
+
+  // console.log(destinationDetails.duration);
+  console.log(arrivalMinutes);
 
   // Panel body
 
 
   // $('#estimatedTime')
   $('.showTime').html(parseInt(arrivalHours) + ":"+ (arrivalMinutes < 10 ? "0" + arrivalMinutes : arrivalMinutes));
+  // $('.showTime').html(destinationDetails.duration.text);
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
 }
@@ -506,12 +604,28 @@ function resizeMap() {
 }
 
 $(document).ready(function() {
-  var msg = new SpeechSynthesisUtterance();
-  var voices = window.speechSynthesis;
-  console.log(voices);
-
-  var myLang = speechSynthesisUtteranceInstance.lang;
-speechSynthesisUtteranceInstance.lang = 'en-US';
+  // var voices;
+  // var msg;
+  //
+  // function loadVoices() {
+  //   voices = speechSynthesis.getVoices();
+  //   console.log(voices);
+  //
+  //   msg.voice = voices[3];
+  //   msg.text = 'Google US English';
+  //
+  //   // Queue this utterance.
+  //   window.speechSynthesis.speak(msg);
+  //   console.log(msg);
+  // }
+  //
+  // msg = new SpeechSynthesisUtterance();
+  // // console.log(msg.voice);
+  // window.speechSynthesis.onvoiceschanged = function(e) {
+  //   loadVoices();
+  // };
+  // loadVoices();
+  // window.speechSynthesis.speak(msg);
 
   initMap();
 
@@ -621,6 +735,8 @@ speechSynthesisUtteranceInstance.lang = 'en-US';
     navigationBottomBarToggle();
     resizeMap();
     simulateRoute();
+    getEstimatedDetails();
+
     map.setZoom(20);
     $('#realDeparture').html("닫기");
   });
