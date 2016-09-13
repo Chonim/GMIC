@@ -13,7 +13,7 @@ var autocompleteLocation;
 var address;
 var destinationDetails;
 var directionsDisplay;
-var directionResult;
+var steps;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -24,7 +24,6 @@ var markersArray = [];
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 var countryRestrict = {'country': 'us'};
-var viewportHeight = window.innerHeight;
 
 var date = new Date();
 
@@ -54,6 +53,7 @@ var styleArray = [
 ];
 
 function initMap() {
+  var viewportHeight = window.innerHeight;
   $('#map').css('height', viewportHeight-60);
   mapCanvasId = 'map'
   var mapOptions = {
@@ -69,19 +69,20 @@ function initMap() {
   infowindow = new google.maps.InfoWindow();
 
   marker = new google.maps.Marker({
-    map: map,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      strokeColor: "#73C3D6",
-      scale: 8
-    },
-    position: currentLocation
+  map: map,
+  icon: {
+    path: google.maps.SymbolPath.CIRCLE,
+    strokeColor: "#73C3D6",
+    scale: 8
+  },
+  position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
 
 
   });
+
   var circle = new google.maps.Circle({
-    radius: 50,
+    radius: 30,
     center: currentLocation,
     map: map,
     fillColor: '#333333',
@@ -400,7 +401,7 @@ function inputFocusOrGoToAutocomplete() {
 
 function navigationBottomBarToggle(e) {
   if ($('#navigationBottomBar').height() < 60) {
-    $('#navigationBottomBar').css('height', viewportHeight);
+    $('#navigationBottomBar').css('height','680px');
   } else {
     $('#navigationBottomBar').css('height','50px');
   }
@@ -408,7 +409,7 @@ function navigationBottomBarToggle(e) {
 
 function getEstimatedDetails() {
   directionsService = null; // reset directions
-  directionsService = new google.maps.DirectionsService;
+  var directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
     origin: currentLocation,
@@ -422,21 +423,46 @@ function getEstimatedDetails() {
       destinationDetails = response.routes[0].legs[0];
       // directionsDisplay.setMap(map);
       directionsDisplay.setDirections(response);
-      var steps = destinationDetails.steps;
+      steps = destinationDetails.steps;
       for (i=0; i<steps.length; i++) {
         // console.log(steps[i]);
         // console.log(steps[i].maneuver + steps[i].duration.text + steps[i].distance.text + steps[i].instructions);
-      console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
-      directionResult = response;
+        console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
       }
       // console.log(response.routes[0].legs[0]);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
+
     } else {
       window.alert('Directions request failed due to ' + status);
     }
   });
-  google.maps.event.trigger(map, "resize");
   map.setCenter(autocompleteLocation);
+  google.maps.event.trigger(map, "resize");
+}
+
+function simulateRoute() {
+  $('#header').show();
+  var index = steps.length;
+  map.setZoom(10);
+  for (var i = 0; i < steps.length; i++) {
+    $('#header-title').append('<br />' + steps[i].instructions);
+  }
+  window.setInterval(function(){
+    // console.log(steps.length);
+    // console.log(steps.length - index);
+    console.log(index);
+    if (index > 0) {
+      map.setCenter(steps[steps.length - index].end_location);
+      $('#header-title').html(steps[steps.length - index].instructions);
+      var text = $('#header-title').html();
+      var msg = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(msg);
+
+      index--;
+    } else {
+      index = steps.length;
+    }
+  }, 5000);
 }
 
 function showTravelDetails() {
@@ -479,78 +505,13 @@ function resizeMap() {
   }, 500);
 }
 
-function calcRoute(directionResult) {
-  var request = {
-      origin: currentLocation,
-      destination: autocompleteLocation,
-      travelMode: "DRIVING"
-  };
-  directionsService.route(request, function(response, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-          directionsDisplay.setDirections(response);
-          createPolyline(response);
-      }
-  });
-}
-
-function createPolyline(directionResult) {
-  line = new google.maps.Polyline({
-      path: directionResult.routes[0].overview_path,
-      strokeColor: '#FF0000',
-      strokeOpacity: 0.5,
-      strokeWeight: 4,
-      icons: [{
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          strokeColor: '#393'
-        },
-        offset: '100%'
-      }]
-  });
-  line.setMap(map);
-  console.log(directionResult.routes[0].overview_path[0]);
-  // console.log(line.get('icons'));
-  animate();
-};
-
-function animate() {
-  var count = 0;
-  var offsetCount = 0;
-  window.setInterval(function() {
-    count = (count + 1) % 200;
-
-    var icons = line.get('icons');
-    icons[0].offset = (count / 2) + '%';
-    line.set('icons', icons);
-    var currentOffset = directionResult.routes[0].overview_path;
-    // console.log(currentOffset[0]._.I.lat);
-    // map.setCenter(currentOffset);
-    offsetCount++;
-    // map.setCenter(currentOffset);
-  }, 20);
-}
-
 $(document).ready(function() {
-//   var msg = new SpeechSynthesisUtterance();
-// var voices = window.speechSynthesis.getVoices();
-// console.log(voices);
-// msg.voice = voices[8]; // Note: some voices don't support altering params
-// msg.voiceURI = 'native';
-// msg.volume = 1; // 0 to 1
-// msg.rate = 1; // 0.1 to 10
-// msg.pitch = 1; //0 to 2
-// msg.lang = 'en-US';
-// msg.text = '1298 Howard Street, San Francisco1.1 km 4 mins';
-// msg.onend = function(e) {
-//   console.log('Finished in ' + event.elapsedTime + ' seconds.');
-// };
-// speechSynthesis.speak(msg);
+  var msg = new SpeechSynthesisUtterance();
+  var voices = window.speechSynthesis;
+  console.log(voices);
 
-var voicelist = responsiveVoice.getVoices();
-console.log(voicelist[0].name);
-responsiveVoice.setDefaultVoice(voicelist[0].name);
-responsiveVoice.speak("hello world", voicelist[0].name);
+  var myLang = speechSynthesisUtteranceInstance.lang;
+speechSynthesisUtteranceInstance.lang = 'en-US';
 
   initMap();
 
@@ -659,9 +620,9 @@ responsiveVoice.speak("hello world", voicelist[0].name);
     closeRightBar();
     navigationBottomBarToggle();
     resizeMap();
+    simulateRoute();
     map.setZoom(20);
     $('#realDeparture').html("닫기");
-    calcRoute(directionResult);
   });
 
   $('#pac-input').keypress(function(e) {
@@ -688,7 +649,6 @@ responsiveVoice.speak("hello world", voicelist[0].name);
     initMap();
     $('#navigationBottomBar').hide();
     $('#bottomBar').show();
-    $('#realDeparture').html("출발");
   })
 
   $('.close-home-work').click(function() {
@@ -702,5 +662,4 @@ responsiveVoice.speak("hello world", voicelist[0].name);
     initMap();
     resizeMap();
   })
-
 })
