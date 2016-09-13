@@ -13,6 +13,7 @@ var autocompleteLocation;
 var address;
 var destinationDetails;
 var directionsDisplay;
+var directionResult;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -23,6 +24,7 @@ var markersArray = [];
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 var countryRestrict = {'country': 'us'};
+var viewportHeight = window.innerHeight;
 
 var date = new Date();
 
@@ -52,7 +54,6 @@ var styleArray = [
 ];
 
 function initMap() {
-  var viewportHeight = window.innerHeight;
   $('#map').css('height', viewportHeight-60);
   mapCanvasId = 'map'
   var mapOptions = {
@@ -399,7 +400,7 @@ function inputFocusOrGoToAutocomplete() {
 
 function navigationBottomBarToggle(e) {
   if ($('#navigationBottomBar').height() < 60) {
-    $('#navigationBottomBar').css('height','680px');
+    $('#navigationBottomBar').css('height', viewportHeight);
   } else {
     $('#navigationBottomBar').css('height','50px');
   }
@@ -407,7 +408,7 @@ function navigationBottomBarToggle(e) {
 
 function getEstimatedDetails() {
   directionsService = null; // reset directions
-  var directionsService = new google.maps.DirectionsService;
+  directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
     origin: currentLocation,
@@ -425,7 +426,8 @@ function getEstimatedDetails() {
       for (i=0; i<steps.length; i++) {
         // console.log(steps[i]);
         // console.log(steps[i].maneuver + steps[i].duration.text + steps[i].distance.text + steps[i].instructions);
-        console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
+      console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
+      directionResult = response;
       }
       // console.log(response.routes[0].legs[0]);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
@@ -475,6 +477,58 @@ function resizeMap() {
     google.maps.event.trigger(map, "resize");
     map.setCenter(currentLocation);
   }, 500);
+}
+
+function calcRoute(directionResult) {
+  var request = {
+      origin: currentLocation,
+      destination: autocompleteLocation,
+      travelMode: "DRIVING"
+  };
+  directionsService.route(request, function(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+          directionsDisplay.setDirections(response);
+          createPolyline(response);
+      }
+  });
+}
+
+function createPolyline(directionResult) {
+  line = new google.maps.Polyline({
+      path: directionResult.routes[0].overview_path,
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.5,
+      strokeWeight: 4,
+      icons: [{
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          strokeColor: '#393'
+        },
+        offset: '100%'
+      }]
+  });
+  line.setMap(map);
+  console.log(directionResult.routes[0].overview_path[0]);
+  // console.log(line.get('icons'));
+  animate();
+};
+
+function animate() {
+  var count = 0;
+  var offsetCount = 0;
+  window.setInterval(function() {
+    count = (count + 1) % 200;
+
+    var icons = line.get('icons');
+    icons[0].offset = (count / 2) + '%';
+    line.set('icons', icons);
+    var currentOffset = directionResult.routes[0].overview_path;
+    // console.log(currentOffset[0]._.I.lat);
+    // map.setCenter(currentOffset);
+    offsetCount++;
+    // map.setCenter(currentOffset);
+  }, 20);
 }
 
 $(document).ready(function() {
@@ -607,6 +661,7 @@ responsiveVoice.speak("hello world", voicelist[0].name);
     resizeMap();
     map.setZoom(20);
     $('#realDeparture').html("닫기");
+    calcRoute(directionResult);
   });
 
   $('#pac-input').keypress(function(e) {
@@ -633,6 +688,7 @@ responsiveVoice.speak("hello world", voicelist[0].name);
     initMap();
     $('#navigationBottomBar').hide();
     $('#bottomBar').show();
+    $('#realDeparture').html("출발");
   })
 
   $('.close-home-work').click(function() {
@@ -646,4 +702,5 @@ responsiveVoice.speak("hello world", voicelist[0].name);
     initMap();
     resizeMap();
   })
+
 })
