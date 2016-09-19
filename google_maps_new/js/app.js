@@ -187,10 +187,6 @@ function autoComplete() {
         infowindow.close();
         marker.setVisible(true);
         place = autocomplete.getPlace();
-        if (!place.geometry) {
-          window.alert("Autocomplete's returned place contains no geometry");
-          return;
-        }
 
         getPlaceAddress();
 
@@ -237,6 +233,10 @@ function getPlaceAddress() {
       (place.address_components[2] && place.address_components[2].short_name || '')
     ].join(' ');
   }
+}
+
+function showPlaceInfo(e) {
+  console.log(e);
 }
 
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
@@ -494,7 +494,6 @@ function createPolyline(directionResult) {
 function animate(path) {
     var i = 0;
     var leg = 0;
-    console.log(steps)
     // console.log(path[5].toString())
     map.setZoom(18);
     var animatePath = setInterval(function() {
@@ -544,6 +543,9 @@ function animate(path) {
       if (i == path.length) {
         clearInterval(animatePath);
         i=0;
+        $('#header').hide('fast');
+        $('#navigationBottomBar').hide('fast');
+        $('#bottomBar').show('fast');
       } else {
         infowindow.close();
         map.panTo(path[i]);
@@ -697,7 +699,7 @@ $(document).ready(function() {
   $('.openFavoriteList').click(function() {
     if ($('#favoriteListContents > a').html() == null) {
       for(var i = 0; i < localStorage.length; i++) {
-        $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem">&#9733; ' + localStorage.key(i) + '</a>');
+        $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + localStorage.key(i) + '\')">&#9733; ' + localStorage.key(i) + '</a>');
       }
     }
   })
@@ -838,8 +840,8 @@ $(document).ready(function() {
     resizeMap();
   })
 
-  $('.favoriteListContentsItem').click(function() {
-    console.log('d');
+  $('#favoriteListContents > a').click(function() {
+    console.log(this);
   })
 
   $('#addWaypoints').click(function() {
