@@ -22,6 +22,7 @@ var gasStationTextArray = [];
 var gasStationLatlngArray = [];
 var distanceMatrixArray = [];
 var markersArray = [];
+var getEstimatedDetailsResponse = [];
 
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
@@ -55,6 +56,7 @@ var styleArray = [
 ];
 
 function initMap() {
+  currentLocation = {lat: 37.7749295, lng: -122.4194155}
   var viewportHeight = window.innerHeight;
   $('#map').css('height', viewportHeight-60);
   mapCanvasId = 'map'
@@ -108,8 +110,7 @@ function initMap() {
   autoComplete();
 }
 
-function addYourLocationButton(map, marker)
-{
+function addYourLocationButton(map, marker) {
     var controlDiv = document.createElement('div');
 
     var firstChild = document.createElement('button');
@@ -427,13 +428,11 @@ function getEstimatedDetails() {
       directionsDisplay.setDirections(response);
       steps = destinationDetails.steps;
       for (i=0; i<steps.length; i++) {
-        // console.log(steps[i]);
-        // console.log(steps[i].maneuver + steps[i].duration.text + steps[i].distance.text + steps[i].instructions);
-        console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
+        // console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
       }
       // console.log(response.routes[0].legs[0]);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
-      createPolyline(response);
+      getEstimatedDetailsResponse = response;
 
     } else {
       window.alert('Directions request failed due to ' + status);
@@ -459,8 +458,9 @@ function calcRoute() {
 };
 
 function createPolyline(directionResult) {
+  line = null;
   line = new google.maps.Polyline({
-      path: directionResult.routes[0].overview_path,
+      path: [],
       strokeColor: '#FF0000',
       strokeOpacity: 0.5,
       strokeWeight: 4,
@@ -473,41 +473,109 @@ function createPolyline(directionResult) {
           offset: '100%'
         }]
   });
+  var bounds = new google.maps.LatLngBounds();
+  var entirePath = [];
+  var legs = directionResult.routes[0].legs;
+  for (i=0;i<legs.length;i++) {
+    var steps = legs[i].steps;
+    for (j=0;j<steps.length;j++) {
+      var nextSegment = steps[j].path;
+      for (k=0;k<nextSegment.length;k++) {
+        line.getPath().push(nextSegment[k]);
+        bounds.extend(nextSegment[k]);
+        entirePath.push(nextSegment[k]);
+      }
+    }
+  }
+
   line.setMap(map);
-  animate(directionResult.routes[0].overview_path);
+  map.fitBounds(bounds);
+  // animate(directionResult.routes[0].overview_path);
+  animate(entirePath);
+  console.log(entirePath.length);
 };
 
 function animate(path) {
-    var count = 0;
     var i = 0;
-    window.setInterval(function() {
-      count = (count + 1) % path.length;
+    var leg = 0;
+    console.log(steps)
+    // console.log(path[5].toString())
+    map.setZoom(18);
+    var animatePath = setInterval(function() {
+      // console.log(path[i].toString())
+      if (path[i].toString() == steps[leg].path[0].toString()) {
+        $('#header').show();
+        if (leg < steps.length) {
+          $('#header-title').html(steps[leg].instructions);
 
-      var icons = line.get('icons');
-      icons[0].offset = (count / (path.length / 100)) + '%';
-      map.setCenter(path[i])
-      // console.log(path[i])
-      line.set('icons', icons);
-      i++;
-      if (i == path.length) {
-      	i = 0;
+          var text = $('#header-title').text();
+          var voices;
+          var msg;
+
+          function loadVoices() {
+            voices = speechSynthesis.getVoices();
+            // console.log(voices);
+
+            msg.voice = voices[2];
+            msg.volume = 3;
+
+            console.log(msg.text);
+            // Speak only if it's a new one
+            if (msg.text !== text) {
+              msg.text = text;
+
+              // Queue this utterance.
+              window.speechSynthesis.speak(msg);
+              // console.log(msg);
+            }
+          }
+
+          msg = new SpeechSynthesisUtterance();
+          // console.log(msg.voice);
+
+          window.speechSynthesis.onvoiceschanged = function(e) {
+            loadVoices();
+          };
+          loadVoices();
+          leg++;
+          if (leg == steps.length) {
+            clearInterval(animatePath);
+            leg = 0;
+            // i = 0;
+          }
+        } else {
+        }
       }
-  }, 20);
+      i++;
+      console.log(i);
+
+      infowindow.close();
+      map.panTo(path[i]);
+      marker.setPosition(path[i]);
+  }, 300);
 };
 
+// Shows route and text 1 by 1
 function simulateRoute() {
   $('#header').show();
   var index = steps.length;
   map.setZoom(10);
   for (var i = 0; i < steps.length; i++) {
-    $('#header-title').append('<br />' + steps[i].instructions);
+    // $('#header-title').append('<br />' + steps[i].instructions);
   }
   window.setInterval(function(){
     // console.log(steps.length);
     // console.log(steps.length - index);
-    console.log(index);
     if (index > 0) {
-      map.setCenter(steps[steps.length - index].start_location);
+      map.setZoom(17);
+      // map.panTo(steps[steps.length - index].start_location);
+      marker = null;
+      marker = new google.maps.Marker({
+        map: map,
+        position: steps[steps.length - index].start_location
+        // anchorPoint: new google.maps.Point(0, -29)
+      });
+      console.log(index)
       $('#header-title').html(steps[steps.length - index].instructions);
       var text = $('#header-title').text();
 
@@ -516,27 +584,29 @@ function simulateRoute() {
 
       function loadVoices() {
         voices = speechSynthesis.getVoices();
-        console.log(voices);
+        // console.log(voices);
 
         msg.voice = voices[2];
         msg.text = text;
+        msg.volume = 3;
 
         // Queue this utterance.
         window.speechSynthesis.speak(msg);
-        console.log(msg);
+        // console.log(msg);
       }
 
       msg = new SpeechSynthesisUtterance();
       // console.log(msg.voice);
-      // window.speechSynthesis.onvoiceschanged = function(e) {
+      window.speechSynthesis.onvoiceschanged = function(e) {
         loadVoices();
-      // };
+      };
+      loadVoices();
 
       index--;
     } else {
       index = steps.length;
     }
-  }, 5000);
+  }, 2000); // Ideal: 5000ms
 }
 
 function showTravelDetails() {
@@ -549,13 +619,6 @@ function showTravelDetails() {
   var estimatedHours = estimatedTime/3600;
   var estimatedMinutes = parseInt(estimatedTime/60);
   var durationText = '';
-
-
-  // if (estimatedHours < 1) {
-  //   $('#estimatedTime').html(estimatedMinutes + "분");
-  // } else {
-  //   $('#estimatedTime').html(estimatedHours + "시간 " + estimatedMinutes + "분");
-  // }
 
   durationText = destinationDetails.duration.text;
   durationText.replace("hour", "시간");
@@ -570,7 +633,6 @@ function showTravelDetails() {
   durationText = durationText.replace(/days|day|hours|hour|mins|min/gi, function(matched) {
     return mapObj[matched];
   })
-  // durationText.replace("min", "분");
   $('#estimatedTime').html(durationText);
 
   arrivalMinutes = estimatedMinutes + currentMinutes;
@@ -580,7 +642,7 @@ function showTravelDetails() {
     arrivalMinutes = arrivalMinutes % 60;
   }
   if (arrivalHours > 23) {
-    arrivalHours-=24;
+    arrivalHours = (arrivalHours % 24) - 1;
   }
 
   // console.log(destinationDetails.duration);
@@ -588,8 +650,6 @@ function showTravelDetails() {
 
   // Panel body
 
-
-  // $('#estimatedTime')
   $('.showTime').html(parseInt(arrivalHours) + ":"+ (arrivalMinutes < 10 ? "0" + arrivalMinutes : arrivalMinutes));
   // $('.showTime').html(destinationDetails.duration.text);
   $('#estimatedDistance').html(destinationDetails.distance.text);
@@ -734,8 +794,9 @@ $(document).ready(function() {
     closeRightBar();
     navigationBottomBarToggle();
     resizeMap();
-    simulateRoute();
+    // simulateRoute();
     getEstimatedDetails();
+    createPolyline(getEstimatedDetailsResponse);
 
     map.setZoom(20);
     $('#realDeparture').html("닫기");
@@ -765,6 +826,7 @@ $(document).ready(function() {
     initMap();
     $('#navigationBottomBar').hide();
     $('#bottomBar').show();
+    $('#realDeparture').html("출발");
   })
 
   $('.close-home-work').click(function() {
@@ -777,5 +839,9 @@ $(document).ready(function() {
     $('#map').css('width', '100%');
     initMap();
     resizeMap();
+  })
+
+  $('.favoriteListContentsItem').click(function() {
+    console.log('d');
   })
 })
