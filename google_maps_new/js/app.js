@@ -24,6 +24,7 @@ var distanceMatrixArray = [];
 var markersArray = [];
 var getEstimatedDetailsResponse = [];
 
+var isWaypoint = false;
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 var countryRestrict = {'country': 'us'};
@@ -214,7 +215,12 @@ function autoComplete() {
         infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
         infowindow.open(map, marker);
 
-        getEstimatedDetails();
+        console.log(isWaypoint);
+        if (isWaypoint == true) {
+          getEstimatedDetails(autocompleteLocation);
+        } else {
+          getEstimatedDetails();
+        }
 
       }, 800);
     // $("#bottomDest").show();
@@ -410,52 +416,42 @@ function navigationBottomBarToggle(e) {
   }
 }
 
-function getEstimatedDetails() {
+function getEstimatedDetails(wypts) {
+  var wayPoints = [];
+  if (wypts !== null) {
+    wayPoints.push({
+      location : wypts,
+      stopover : true
+    });
+  } else {
+    // wayPoints.push({
+    //   location : null,
+    //   stopover : false
+    // });
+  }
   directionsService = null; // reset directions
   directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
     origin: currentLocation,
+    // waypoints: wayPoints,
     destination: autocompleteLocation,
     unitSystem: google.maps.UnitSystem.METRIC,
     travelMode: google.maps.TravelMode.DRIVING
-  }, function(response, status) {
-    if (status === google.maps.DirectionsStatus.OK) {
+  }, function(response) {
       map.setZoom(20);
       directionsDisplay.setMap(map);
       destinationDetails = response.routes[0].legs[0];
       // directionsDisplay.setMap(map);
       directionsDisplay.setDirections(response);
       steps = destinationDetails.steps;
-      for (i=0; i<steps.length; i++) {
         // console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
-      }
-      // console.log(response.routes[0].legs[0]);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
       getEstimatedDetailsResponse = response;
-
-    } else {
-      window.alert('Directions request failed due to ' + status);
-    }
   });
   map.setCenter(autocompleteLocation);
   google.maps.event.trigger(map, "resize");
 }
-
-function calcRoute() {
-    var request = {
-        origin: $("#routeFrom").val(),
-        destination: $("#routeTo").val(),
-        travelMode: "DRIVING"
-    };
-    directionsService.route(request, function(response, status) {
-        if (status == google.maps.DirectionsStatus.OK) {
-            directionsDisplay.setDirections(response);
-            //document.getElementById('Gresponse').innerHTML = JSON.stringify(response);
-            createPolyline(response);
-        }
-    });
-};
 
 function createPolyline(directionResult) {
   line = null;
@@ -539,20 +535,21 @@ function animate(path) {
           loadVoices();
           leg++;
           if (leg == steps.length) {
-            clearInterval(animatePath);
             leg = 0;
             // i = 0;
           }
-        } else {
         }
       }
       i++;
-      console.log(i);
-
-      infowindow.close();
-      map.panTo(path[i]);
-      marker.setPosition(path[i]);
-  }, 300);
+      if (i == path.length) {
+        clearInterval(animatePath);
+        i=0;
+      } else {
+        infowindow.close();
+        map.panTo(path[i]);
+        marker.setPosition(path[i]);
+      }
+  }, 30);
 };
 
 // Shows route and text 1 by 1
@@ -843,5 +840,12 @@ $(document).ready(function() {
 
   $('.favoriteListContentsItem').click(function() {
     console.log('d');
+  })
+
+  $('#addWaypoints').click(function() {
+    isWaypoint = true;
+    navigationBottomBarToggle();
+    closeRightBar();
+    openNav();
   })
 })
