@@ -114,17 +114,15 @@ function addYourLocationButton(map, marker) {
     var controlDiv = document.createElement('div');
 
     var firstChild = document.createElement('button');
-    firstChild.style.backgroundColor = '#fff';
+    firstChild.style.backgroundColor = 'rgba(0, 0, 0, 0)';
     firstChild.style.border = 'none';
     firstChild.style.outline = 'none';
     firstChild.style.width = '28px';
     firstChild.style.height = '28px';
-    firstChild.style.borderRadius = '2px';
-    firstChild.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
     firstChild.style.cursor = 'pointer';
     firstChild.style.marginRight = '10px';
     firstChild.style.padding = '0px';
-    firstChild.title = 'Your Location';
+    firstChild.title = 'My Location';
     controlDiv.appendChild(firstChild);
 
     var secondChild = document.createElement('div');
@@ -272,18 +270,16 @@ function gasMap() {
     location: currentLocation,
     radius: 3000,
     types: ['gas_station']
-  }, callback);
+  }, gasMapCallback);
 }
 
 // Place Search Start
-function callback(results, status) {
-
+function gasMapCallback(results, status) {
   if (status === google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < 10; i++) {
       createMarker(results[i]);
     }
-
-    map.setZoom(14);
+    map.setZoom(13);
     resizeMap();
     distanceMatrix();
   }
@@ -466,10 +462,10 @@ function getEstimatedDetails(wypts) {
     travelMode: google.maps.TravelMode.DRIVING
   }, function(response) {
       map.setZoom(20);
-      directionsDisplay.setMap(map);
       destinationDetails = response.routes[0].legs[0];
       // directionsDisplay.setMap(map);
       directionsDisplay.setDirections(response);
+      directionsDisplay.setMap(map);
       steps = destinationDetails.steps;
         // console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
@@ -567,6 +563,8 @@ function animate(path) {
         }
       }
       i++;
+
+      // Close when reached a destination
       if (i == path.length) {
         clearInterval(animatePath);
         i=0;
@@ -726,7 +724,6 @@ $(document).ready(function() {
   $('#pac-input').focus(function() {
     $('.headerBox').css('height', '0');
     $('.menuDefault').hide();
-    console.log(autocomplete);
     inputFocusOrGoToAutocomplete();
   });
 
