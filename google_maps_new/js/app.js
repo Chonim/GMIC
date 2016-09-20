@@ -200,15 +200,15 @@ function autoComplete() {
         deleteMarkers(markersArray);
         markersArray.push(marker);
 
-        $('#autocompletePlaceName').html(place.name);
+        $('#autocompletePlaceName').html(autocompletePlaceName);
         $('#autocompletePlaceCity').html(address);
 
         // Change star color if exists
-        if (localStorage.getItem(place.name) !== null) {
+        if (localStorage.getItem(autocompletePlaceName) !== null) {
           $('#favoriteAddBtn > a').html("&#9733;");
         }
 
-        infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+        infowindow.setContent('<div><strong>' + autocompletePlaceName + '</strong><br>' + address);
         infowindow.open(map, marker);
 
         console.log(isWaypoint);
@@ -235,8 +235,11 @@ function getPlaceAddress() {
   }
 }
 
-function showPlaceInfo(e) {
-  console.log(e);
+function showPlaceInfo(index) {
+  var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
+  console.log(localStorageItem.name);
+  console.log(localStorageItem.address);
+  console.log(localStorageItem.coords);
 }
 
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
@@ -699,7 +702,7 @@ $(document).ready(function() {
   $('.openFavoriteList').click(function() {
     if ($('#favoriteListContents > a').html() == null) {
       for(var i = 0; i < localStorage.length; i++) {
-        $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + localStorage.key(i) + '\')">&#9733; ' + localStorage.key(i) + '</a>');
+        $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + i + '\')">&#9733; ' + localStorage.key(i) + '</a>');
       }
     }
   })
@@ -762,10 +765,11 @@ $(document).ready(function() {
 
   $('#favoriteNameComplete').click(function() {
     var favoriteName = $('#favoriteName').val();
-    var favoriteObject = { 'name': favoriteName, 'coords': autocompleteLocation, 'address': address };
+    var favoriteObject = {'name': favoriteName, 'coords': autocompleteLocation, 'address': address};
 
     if (localStorage.getItem(favoriteName) === null) {
       localStorage.setItem(favoriteName, JSON.stringify(favoriteObject));
+      // localStorage.setItem(favoriteName, favoriteObject);
       $('#favoriteAddBtn > a').html("&#9733;");
     } else {
       alert("즐겨찾기가 이미 존재합니다");
