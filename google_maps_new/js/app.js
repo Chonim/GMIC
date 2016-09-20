@@ -172,6 +172,7 @@ function autoComplete() {
 
 function getAutocompleteResult() {
   closeNav();
+  $('#map').css('width', '35%');
   $('#map').css('float', 'left');
   $('#mySidenav').css('width', '0%');
   // $('#goToAutocomplete').show();
@@ -218,6 +219,7 @@ function getAutocompleteResult() {
 
       // Decide if there is a waypoint
       console.log(isWaypoint);
+      $('#map').css('width', '35%');
       if (isWaypoint == true) {
         getEstimatedDetails(autocompleteLocation);
       } else {
@@ -225,6 +227,7 @@ function getAutocompleteResult() {
       }
 
     }, 800);
+
 }
 
 function getPlaceAddress() {
@@ -238,6 +241,7 @@ function getPlaceAddress() {
   }
 }
 
+// Show location of favorite item
 function showPlaceInfo(index) {
   $('.favoriteListCloseBtn').trigger("click");
   var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
@@ -302,13 +306,25 @@ function createMarker(place) {
   // console.log(place);
 
   google.maps.event.addListener(marker, 'click', function() {
-    infowindow.setContent("<p><b>"+ place.name + "</b></p>" + "<p>" + place.vicinity + "<p>");
-    input = place.name;
-    autocomplete = place.vicinity;
+    autocompletePlaceName = place.name;
+    address = place.vicinity;
+    autocompleteLocation = place.geometry.location;
+    infowindow.setContent("<p><b>"+ place.name + "</b></p>" +
+                          "<p>" + place.vicinity + "<p>" +
+                          "<p><button onclick='markerOnClick()'>목적지로 설정</button><p>");
     infowindow.open(map, this);
   });
 }
 // Place Search End
+function markerOnClick() {
+  $('#gasStationInfoBar').hide('fast');
+  $('#header').hide('fast');
+  $('#map').css('float', 'right');
+  getAutocompleteResult();
+
+  resizeMap();
+  // resizeMap();
+}
 
 function distanceMatrix() {
   var geocoder = new google.maps.Geocoder;
@@ -461,6 +477,7 @@ function getEstimatedDetails(wypts) {
   });
   map.setCenter(autocompleteLocation);
   google.maps.event.trigger(map, "resize");
+  autocomplete = null;
 }
 
 function createPolyline(directionResult) {
@@ -709,12 +726,14 @@ $(document).ready(function() {
   $('#pac-input').focus(function() {
     $('.headerBox').css('height', '0');
     $('.menuDefault').hide();
-    autoComplete();
-    inputFocusOrGoToAutocomplete()
+    console.log(autocomplete);
+    inputFocusOrGoToAutocomplete();
   });
 
-  $('#pac-input').focus(function() {
-    autocomplete = null;
+  $('#pac-input').keypress(function() {
+    if (autocomplete == null) {
+      autoComplete();
+    }
   });
 
   $('#cancelBtn').click(function() {
