@@ -247,6 +247,7 @@ html, body {
 #backBtn {
   opacity: 0.3;
   width: 20px;
+  display: none;
 }
 
 #favoriteAddBtn > a {

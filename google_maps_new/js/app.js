@@ -7,7 +7,6 @@ var marker;
 var place;
 
 var input;
-var autocomplete;
 var autocompletePlaceName;
 var autocompleteLocation;
 var address;
@@ -24,6 +23,7 @@ var distanceMatrixArray = [];
 var markersArray = [];
 var getEstimatedDetailsResponse = [];
 
+var autocomplete = null;
 var isWaypoint = false;
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
@@ -108,7 +108,6 @@ function initMap() {
 
   // Get current location
   addYourLocationButton(map, marker);
-  autoComplete();
 }
 
 function addYourLocationButton(map, marker) {
@@ -159,69 +158,73 @@ function addYourLocationButton(map, marker) {
 }
 
 function autoComplete() {
-
   input = /** @type {!HTMLInputElement} */(
             document.getElementById('pac-input'));
-
   // Autocomplete
   autocomplete = new google.maps.places.Autocomplete(input, {
     componentRestrictions: countryRestrict
   });
   autocomplete.bindTo('bounds', map);
   autocomplete.addListener('place_changed', function() {
+    getAutocompleteResult()
+  });
+}
 
-    closeNav();
-    $('#map').css('float', 'left');
-    $('#mySidenav').css('width', '0%');
-    $('#goToAutocomplete').show();
-    $('#bottomBar').hide();
+function getAutocompleteResult() {
+  closeNav();
+  $('#map').css('float', 'left');
+  $('#mySidenav').css('width', '0%');
+  // $('#goToAutocomplete').show();
+  $('#bottomBar').hide();
 
-    // When a place clicked
-    openRightBar();
+  // When a place clicked
+  openRightBar();
 
-    setTimeout(
-      function()
-      {
+  setTimeout(
+    function()
+    {
 
-        //do something special
-        infowindow.close();
-        marker.setVisible(true);
+      //do something special
+      infowindow.close();
+      marker.setVisible(true);
+      console.log(autocomplete);
+      if (autocomplete !== null) {
         place = autocomplete.getPlace();
-
         getPlaceAddress();
 
         autocompletePlaceName = place.name;
         autocompleteLocation = place.geometry.location;
+      } else {
+        // Set autocompletePlaceName, autocompleteLocation and address beforehand
+      }
 
-        marker = new google.maps.Marker({
-          map: map,
-          position: autocompleteLocation
-        });
-        deleteMarkers(markersArray);
-        markersArray.push(marker);
+      marker = new google.maps.Marker({
+        map: map,
+        position: autocompleteLocation
+      });
+      deleteMarkers(markersArray);
+      markersArray.push(marker);
 
-        $('#autocompletePlaceName').html(autocompletePlaceName);
-        $('#autocompletePlaceCity').html(address);
+      $('#autocompletePlaceName').html(autocompletePlaceName);
+      $('#autocompletePlaceCity').html(address);
 
-        // Change star color if exists
-        if (localStorage.getItem(autocompletePlaceName) !== null) {
-          $('#favoriteAddBtn > a').html("&#9733;");
-        }
+      // Change star color if exists
+      if (localStorage.getItem(autocompletePlaceName) !== null) {
+        $('#favoriteAddBtn > a').html("&#9733;");
+      }
 
-        infowindow.setContent('<div><strong>' + autocompletePlaceName + '</strong><br>' + address);
-        infowindow.open(map, marker);
+      infowindow.setContent('<div><strong>' + autocompletePlaceName + '</strong><br>' + address);
+      infowindow.open(map, marker);
 
-        console.log(isWaypoint);
-        if (isWaypoint == true) {
-          getEstimatedDetails(autocompleteLocation);
-        } else {
-          getEstimatedDetails();
-        }
+      // Decide if there is a waypoint
+      console.log(isWaypoint);
+      if (isWaypoint == true) {
+        getEstimatedDetails(autocompleteLocation);
+      } else {
+        getEstimatedDetails();
+      }
 
-      }, 800);
-    // $("#bottomDest").show();
-
-  });
+    }, 800);
 }
 
 function getPlaceAddress() {
@@ -236,10 +239,14 @@ function getPlaceAddress() {
 }
 
 function showPlaceInfo(index) {
+  $('.favoriteListCloseBtn').trigger("click");
   var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
-  console.log(localStorageItem.name);
-  console.log(localStorageItem.address);
-  console.log(localStorageItem.coords);
+
+  autocompletePlaceName = localStorageItem.name;
+  address = localStorageItem.address;
+  autocompleteLocation = localStorageItem.coords;
+
+  getAutocompleteResult();
 }
 
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
@@ -546,15 +553,17 @@ function animate(path) {
       if (i == path.length) {
         clearInterval(animatePath);
         i=0;
+        $('#goToAutocomplete').hide('fast');
         $('#header').hide('fast');
         $('#navigationBottomBar').hide('fast');
         $('#bottomBar').show('fast');
+        initMap();
       } else {
         infowindow.close();
         map.panTo(path[i]);
         marker.setPosition(path[i]);
       }
-  }, 30);
+  }, 30); // default: 300
 };
 
 // Shows route and text 1 by 1
@@ -666,28 +675,6 @@ function resizeMap() {
 }
 
 $(document).ready(function() {
-  // var voices;
-  // var msg;
-  //
-  // function loadVoices() {
-  //   voices = speechSynthesis.getVoices();
-  //   console.log(voices);
-  //
-  //   msg.voice = voices[3];
-  //   msg.text = 'Google US English';
-  //
-  //   // Queue this utterance.
-  //   window.speechSynthesis.speak(msg);
-  //   console.log(msg);
-  // }
-  //
-  // msg = new SpeechSynthesisUtterance();
-  // // console.log(msg.voice);
-  // window.speechSynthesis.onvoiceschanged = function(e) {
-  //   loadVoices();
-  // };
-  // loadVoices();
-  // window.speechSynthesis.speak(msg);
 
   initMap();
 
@@ -695,7 +682,6 @@ $(document).ready(function() {
   $('.gasMenu').hide();
   $("#bottomDest").hide();
   $('#menuList').hide();
-  $('#goToAutocomplete').hide();
   $('#navigationBottomBar').hide();
   $('#header').hide();
 
@@ -723,7 +709,12 @@ $(document).ready(function() {
   $('#pac-input').focus(function() {
     $('.headerBox').css('height', '0');
     $('.menuDefault').hide();
+    autoComplete();
     inputFocusOrGoToAutocomplete()
+  });
+
+  $('#pac-input').focus(function() {
+    autocomplete = null;
   });
 
   $('#cancelBtn').click(function() {
