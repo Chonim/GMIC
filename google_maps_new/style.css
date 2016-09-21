@@ -21,6 +21,8 @@
   font-size: 40px;
   color: #19596C;
   text-align: center;
+  height: 50px;
+  overflow: hidden;
 }
 
 #header-close {
@@ -414,7 +416,7 @@ html, body {
 #navigationBottomBar {
   position: absolute;
   bottom: 0;
-  height: 100%;
+  height: 0;
   width: 100%;
   transition:  0.5s;
   z-index: 999;

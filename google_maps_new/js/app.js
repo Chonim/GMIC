@@ -739,8 +739,9 @@ $(document).ready(function() {
 
   $('#departureBtn').click(function() {
     showTravelDetails();
-    $('#navigationBottomBar').show('slow');
-    navigationBottomBarToggle();
+    $('#navigationBottomBar').css('height','100%');
+    console.log($('#navigationBottomBar').height());
+    $('#navigationBottomBar').show('fast');
   })
 
   $('.navigationBottomBarTitle').click(function() {
@@ -802,10 +803,6 @@ $(document).ready(function() {
     $('#map').css('width', '100%');
     initMap();
     resizeMap();
-  })
-
-  $('#favoriteListContents > a').click(function() {
-    console.log(this);
   })
 
   $('#addWaypoints').click(function() {
