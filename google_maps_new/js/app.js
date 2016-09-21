@@ -499,6 +499,7 @@ function createPolyline(directionResult) {
   var legs = directionResult.routes[0].legs;
   for (i=0;i<legs.length;i++) {
     var steps = legs[i].steps;
+    console.log(steps[3]);
     for (j=0;j<steps.length;j++) {
       var nextSegment = steps[j].path;
       for (k=0;k<nextSegment.length;k++) {
@@ -513,7 +514,7 @@ function createPolyline(directionResult) {
   map.fitBounds(bounds);
   map.setZoom(18);
   animate(entirePath);
-  console.log(entirePath.length);
+  // console.log(entirePath);
   console.log(map.getZoom());
 };
 
@@ -521,7 +522,17 @@ function animate(path) {
     var i = 0;
     var leg = 0;
     console.log(map.getZoom());
-    animatePath = setInterval(function() {
+    for (var i=0; i<path.length; i++){
+      (function (index) {
+        setTimeout(function () {
+          map.setCenter(path[index]);
+          marker.setPosition(path[index]);
+          console.log(index);
+        }, i*300);
+      })(i);
+      // sleep(30);
+    }
+    /* animatePath = setInterval(function() {
       if (path[i].toString() == steps[leg].path[0].toString()) {
         $('#header').show();
         if (leg < steps.length) {
@@ -581,10 +592,25 @@ function animate(path) {
         initMap();
       } else {
         infowindow.close();
-        map.panTo(path[i]);
-        marker.setPosition(path[i]);
+        // for(var j=1; j=1; j++){
+          var subLat = (path[i].lat()+path[i+1].lat())/2;
+          var subLng = (path[i].lat()+path[i+1].lng())/2;
+          console.log(new google.maps.LatLng(subLat, subLng));
+          // map.setCenter(new google.maps.LatLng(subLat, subLng));
+          // map.setCenter(path[i]);
+          // marker.setPosition(path[i]);
+        // }
       }
-  }, 30); // default: 300
+  }, 300); // default: 300 */
+};
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
 };
 
 function showTravelDetails() {
@@ -797,6 +823,7 @@ $(document).ready(function() {
   $('#header-close').click(function() {
     if (confirm('정말 종료하시겠습니까?')) {
       clearInterval(animatePath);
+      closeRightBar();
       $('#header').hide('fast');
       $('#gasStationInfoBar').css('width', '0%');
       $('#map').css('width', '100%');

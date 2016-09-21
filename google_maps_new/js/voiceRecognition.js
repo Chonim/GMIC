@@ -3,7 +3,7 @@ var recognizing = false;
 var ignore_onend;
 var start_timestamp;
 if (!('webkitSpeechRecognition' in window)) {
-  upgrade();
+  // upgrade();
 } else {
   var recognition = new webkitSpeechRecognition();
   recognition.continuous = true;
