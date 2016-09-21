@@ -15,6 +15,7 @@ var directionsDisplay;
 var directionsService;
 var steps;
 var line;
+var animatePath;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -460,9 +461,8 @@ function getEstimatedDetails(wypts) {
     unitSystem: google.maps.UnitSystem.METRIC,
     travelMode: google.maps.TravelMode.DRIVING
   }, function(response) {
-      map.setZoom(20);
       destinationDetails = response.routes[0].legs[0];
-      // directionsDisplay.setMap(map);
+      map.setZoom(20);
       directionsDisplay.setDirections(response);
       directionsDisplay.setMap(map);
       steps = destinationDetails.steps;
@@ -512,18 +512,17 @@ function createPolyline(directionResult) {
 
   line.setMap(map);
   map.fitBounds(bounds);
-  // animate(directionResult.routes[0].overview_path);
+  map.setZoom(18);
   animate(entirePath);
   console.log(entirePath.length);
+  console.log(map.getZoom());
 };
 
 function animate(path) {
     var i = 0;
     var leg = 0;
-    // console.log(path[5].toString())
-    map.setZoom(18);
-    var animatePath = setInterval(function() {
-      // console.log(path[i].toString())
+    console.log(map.getZoom());
+    animatePath = setInterval(function() {
       if (path[i].toString() == steps[leg].path[0].toString()) {
         $('#header').show();
         if (leg < steps.length) {
@@ -538,14 +537,14 @@ function animate(path) {
             // console.log(voices);
 
             msg.voice = voices[2];
-            msg.lang = "en-US";
-            msg.voiceURI = "Google US English";
             msg.volume = 3;
 
-            console.log(msg.text);
+            // Optional
+
             // Speak only if it's a new one
             if (msg.text !== text) {
               msg.text = text;
+              console.log(msg.text);
 
               // Queue this utterance.
               window.speechSynthesis.speak(msg);
@@ -624,9 +623,6 @@ function showTravelDetails() {
   if (arrivalHours > 23) {
     arrivalHours = (arrivalHours % 24) - 1;
   }
-
-  // console.log(destinationDetails.duration);
-  console.log(arrivalMinutes);
 
   // Panel body
 
@@ -798,11 +794,18 @@ $(document).ready(function() {
   })
 
   $('#header-close').click(function() {
-    $('#header').hide('fast');
-    $('#gasStationInfoBar').css('width', '0%');
-    $('#map').css('width', '100%');
-    initMap();
-    resizeMap();
+    if (confirm('정말 종료하시겠습니까?')) {
+      clearInterval(animatePath);
+      $('#header').hide('fast');
+      $('#gasStationInfoBar').css('width', '0%');
+      $('#map').css('width', '100%');
+      $('#navigationBottomBar').hide('fast');
+      $('#bottomBar').show('fast');
+      initMap();
+      resizeMap();
+    } else {
+      // Keep navigating
+    }
   })
 
   $('#addWaypoints').click(function() {
