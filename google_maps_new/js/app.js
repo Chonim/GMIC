@@ -83,7 +83,6 @@ function initMap() {
   position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
 
-
   });
 
   var circle = new google.maps.Circle({
@@ -98,8 +97,8 @@ function initMap() {
   markersArray.push(marker);
 
   // Traffic Layer 추가
-  var trafficLayer = new google.maps.TrafficLayer();
-  trafficLayer.setMap(map);
+  // var trafficLayer = new google.maps.TrafficLayer();
+  // trafficLayer.setMap(map);
 
   // 밤낮 에이어 추가
   // new DayNightOverlay({
@@ -112,7 +111,6 @@ function initMap() {
 
 function addYourLocationButton(map, marker) {
     var controlDiv = document.createElement('div');
-
     var firstChild = document.createElement('button');
     firstChild.style.backgroundColor = 'rgba(0, 0, 0, 0)';
     firstChild.style.border = 'none';
@@ -411,6 +409,7 @@ function closeNav() {
 function openRightBar() {
   $('#map').css('width', '35%');
   $('#rightBar').css('width', '65%');
+  $('#realDeparture').html("출발");
   // console.log(map.getBounds())
 }
 
@@ -432,7 +431,7 @@ function inputFocusOrGoToAutocomplete() {
 
 function navigationBottomBarToggle(e) {
   if ($('#navigationBottomBar').height() < 60) {
-    $('#navigationBottomBar').css('height','680px');
+    $('#navigationBottomBar').css('height','100%');
   } else {
     $('#navigationBottomBar').css('height','50px');
   }
@@ -473,6 +472,10 @@ function getEstimatedDetails(wypts) {
   });
   map.setCenter(autocompleteLocation);
   google.maps.event.trigger(map, "resize");
+
+  // Save recent destination in sessionStorage
+  var recentDesination = JSON.stringify({'name': autocompletePlaceName, 'coords': autocompleteLocation, 'address': address});
+  sessionStorage.setItem(autocompletePlaceName, recentDesination);
   autocomplete = null;
 }
 
@@ -535,6 +538,8 @@ function animate(path) {
             // console.log(voices);
 
             msg.voice = voices[2];
+            msg.lang = "en-US";
+            msg.voiceURI = "Google US English";
             msg.volume = 3;
 
             console.log(msg.text);
@@ -547,15 +552,18 @@ function animate(path) {
               // console.log(msg);
             }
           }
-
           msg = new SpeechSynthesisUtterance();
-          // console.log(msg.voice);
 
-          window.speechSynthesis.onvoiceschanged = function(e) {
+          if ( window.speechSynthesis.onvoiceschanged == null) {
+            window.speechSynthesis.onvoiceschanged = function(e) {
+              loadVoices();
+            };
+          } else {
             loadVoices();
-          };
-          loadVoices();
+          }
+
           leg++;
+
           if (leg == steps.length) {
             leg = 0;
             // i = 0;
@@ -580,60 +588,6 @@ function animate(path) {
       }
   }, 30); // default: 300
 };
-
-// Shows route and text 1 by 1
-function simulateRoute() {
-  $('#header').show();
-  var index = steps.length;
-  map.setZoom(10);
-  for (var i = 0; i < steps.length; i++) {
-    // $('#header-title').append('<br />' + steps[i].instructions);
-  }
-  window.setInterval(function(){
-    // console.log(steps.length);
-    // console.log(steps.length - index);
-    if (index > 0) {
-      map.setZoom(17);
-      // map.panTo(steps[steps.length - index].start_location);
-      marker = null;
-      marker = new google.maps.Marker({
-        map: map,
-        position: steps[steps.length - index].start_location
-        // anchorPoint: new google.maps.Point(0, -29)
-      });
-      console.log(index)
-      $('#header-title').html(steps[steps.length - index].instructions);
-      var text = $('#header-title').text();
-
-      var voices;
-      var msg;
-
-      function loadVoices() {
-        voices = speechSynthesis.getVoices();
-        // console.log(voices);
-
-        msg.voice = voices[2];
-        msg.text = text;
-        msg.volume = 3;
-
-        // Queue this utterance.
-        window.speechSynthesis.speak(msg);
-        // console.log(msg);
-      }
-
-      msg = new SpeechSynthesisUtterance();
-      // console.log(msg.voice);
-      window.speechSynthesis.onvoiceschanged = function(e) {
-        loadVoices();
-      };
-      loadVoices();
-
-      index--;
-    } else {
-      index = steps.length;
-    }
-  }, 2000); // Ideal: 5000ms
-}
 
 function showTravelDetails() {
   // Time and Distance
@@ -804,7 +758,6 @@ $(document).ready(function() {
     closeRightBar();
     navigationBottomBarToggle();
     resizeMap();
-    // simulateRoute();
     getEstimatedDetails();
     createPolyline(getEstimatedDetailsResponse);
 
@@ -860,5 +813,9 @@ $(document).ready(function() {
     navigationBottomBarToggle();
     closeRightBar();
     openNav();
+  })
+
+  $('#microphone').click(function() {
+    startButton(event);
   })
 })

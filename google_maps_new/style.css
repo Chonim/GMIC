@@ -414,7 +414,7 @@ html, body {
 #navigationBottomBar {
   position: absolute;
   bottom: 0;
-  height: 680px;
+  height: 100%;
   width: 100%;
   transition:  0.5s;
   z-index: 999;
