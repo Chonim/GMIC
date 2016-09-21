@@ -432,7 +432,7 @@ function inputFocusOrGoToAutocomplete() {
 
 function navigationBottomBarToggle(e) {
   if ($('#navigationBottomBar').height() < 60) {
-    $('#navigationBottomBar').css('height','90%');
+    $('#navigationBottomBar').css('height','100%');
   } else {
     $('#navigationBottomBar').css('height','50px');
   }
@@ -462,14 +462,13 @@ function getEstimatedDetails(wypts) {
     travelMode: google.maps.TravelMode.DRIVING
   }, function(response) {
       destinationDetails = response.routes[0].legs[0];
-      map.setZoom(20);
       directionsDisplay.setDirections(response);
       directionsDisplay.setMap(map);
       steps = destinationDetails.steps;
-        // console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
       getEstimatedDetailsResponse = response;
   });
+  map.setZoom(20);
   map.setCenter(autocompleteLocation);
   google.maps.event.trigger(map, "resize");
 
@@ -782,8 +781,10 @@ $(document).ready(function() {
   })
 
   $('#navagationClose').click(function() {
+    clearInterval(animatePath);
     closeRightBar();
     initMap();
+    $('#header').hide('fast');
     $('#navigationBottomBar').hide();
     $('#bottomBar').show();
     $('#realDeparture').html("출발");
