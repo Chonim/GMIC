@@ -432,7 +432,7 @@ function inputFocusOrGoToAutocomplete() {
 
 function navigationBottomBarToggle(e) {
   if ($('#navigationBottomBar').height() < 60) {
-    $('#navigationBottomBar').css('height','100%');
+    $('#navigationBottomBar').css('height','90%');
   } else {
     $('#navigationBottomBar').css('height','50px');
   }
