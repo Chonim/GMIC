@@ -82,7 +82,7 @@ input[type=text]{
 }
 
 #map {
-  height: 760px;
+  height: 560px;
   width: 100%;
   transition: 0.5s;
   float: right;
@@ -184,8 +184,8 @@ html, body {
 }
 
 @media screen and (max-height: 450px) {
-  .sidenav {padding-top: 15px;}
-  .sidenav a {font-size: 18px;}
+  /*.sidenav a {font-size: 18px;}*/
+  body {font-size: 18px !important; }
 }
 /*Sidebar end*/
 
@@ -207,10 +207,6 @@ html, body {
 .modal-title {
   text-align: center;
   font-weight: bold;
-}
-
-.modal-body {
-  height: 500px;
 }
 
 /*Modal end*/
@@ -363,7 +359,7 @@ html, body {
 }
 
 #favoriteAskModal .modal-body {
-  height: 50px;
+  height: 50%;
 }
 
 #closeAskModal {
@@ -393,10 +389,18 @@ html, body {
   width: 100%;
 }
 
+#favoritesModal .modal-dialog {
+  height: 45%;
+}
+
+#favoritesModal .modal-body {
+  height: 40%;
+}
+
 #favoriteListContents {
   background-color: #FFF;
   overflow-y: scroll;
-  height: 100%;
+  height: 50%;
 }
 
 #favoriteListContents a {

@@ -16,6 +16,7 @@ var directionsService;
 var steps;
 var line;
 var animatePath;
+var previousPage;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -58,9 +59,10 @@ var styleArray = [
 ];
 
 function initMap() {
+  console.log(viewportHeight);
   currentLocation = {lat: 37.7749295, lng: -122.4194155}
   var viewportHeight = window.innerHeight;
-  $('#map').css('height', viewportHeight-60);
+  $('#map').css('height', viewportHeight-40);
   mapCanvasId = 'map'
   var mapOptions = {
     center: currentLocation,
@@ -95,6 +97,7 @@ function initMap() {
     strokeColor: '#333333',
     strokeOpacity: 0.6
   });
+  map.setCenter(currentLocation);
   markersArray.push(marker);
 
   // Traffic Layer 추가
@@ -240,6 +243,7 @@ function getPlaceAddress() {
 
 // Show location of favorite item
 function showPlaceInfo(index) {
+  previousPage = "favorite";
   $('.favoriteListCloseBtn').trigger("click");
   var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
 
@@ -439,6 +443,7 @@ function navigationBottomBarToggle(e) {
 }
 
 function getEstimatedDetails(wypts) {
+  google.maps.event.trigger(map, "resize");
   var wayPoints = [];
   if (wypts !== null) {
     wayPoints.push({
@@ -468,9 +473,8 @@ function getEstimatedDetails(wypts) {
       $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
       getEstimatedDetailsResponse = response;
   });
-  map.setZoom(20);
-  map.setCenter(autocompleteLocation);
-  google.maps.event.trigger(map, "resize");
+  // map.setZoom(20);
+  // map.setCenter(autocompleteLocation);
 
   // Save recent destination in sessionStorage
   var recentDesination = JSON.stringify({'name': autocompletePlaceName, 'coords': autocompleteLocation, 'address': address});
@@ -499,7 +503,6 @@ function createPolyline(directionResult) {
   var legs = directionResult.routes[0].legs;
   for (i=0;i<legs.length;i++) {
     var steps = legs[i].steps;
-    console.log(steps[3]);
     for (j=0;j<steps.length;j++) {
       var nextSegment = steps[j].path;
       for (k=0;k<nextSegment.length;k++) {
@@ -509,12 +512,21 @@ function createPolyline(directionResult) {
       }
     }
   }
+  // for(var j=1; j=10; j++){
+  //   var subLat = (path[i].lat()+path[i+1].lat())/2;
+  //   var subLng = (path[i].lat()+path[i+1].lng())/2;
+  //   console.log(new google.maps.LatLng(subLat, subLng));
+  //   // map.setCenter(new google.maps.LatLng(subLat, subLng));
+  //   map.setCenter(path[i]);
+  //   marker.setPosition(path[i]);
+  //   sleep(30);
+  // }
 
   line.setMap(map);
   map.fitBounds(bounds);
   map.setZoom(18);
   animate(entirePath);
-  // console.log(entirePath);
+  console.log(entirePath.length);
   console.log(map.getZoom());
 };
 
@@ -522,19 +534,10 @@ function animate(path) {
     var i = 0;
     var leg = 0;
     console.log(map.getZoom());
-    for (var i=0; i<path.length; i++){
-      (function (index) {
-        setTimeout(function () {
-          map.setCenter(path[index]);
-          marker.setPosition(path[index]);
-          console.log(index);
-        }, i*300);
-      })(i);
-      // sleep(30);
-    }
-    /* animatePath = setInterval(function() {
+    $('#header').show();
+    animatePath = setInterval(function() {
+      map.setZoom(17);
       if (path[i].toString() == steps[leg].path[0].toString()) {
-        $('#header').show();
         if (leg < steps.length) {
           $('#header-title').html(steps[leg].instructions);
 
@@ -592,25 +595,11 @@ function animate(path) {
         initMap();
       } else {
         infowindow.close();
-        // for(var j=1; j=1; j++){
-          var subLat = (path[i].lat()+path[i+1].lat())/2;
-          var subLng = (path[i].lat()+path[i+1].lng())/2;
-          console.log(new google.maps.LatLng(subLat, subLng));
-          // map.setCenter(new google.maps.LatLng(subLat, subLng));
-          // map.setCenter(path[i]);
-          // marker.setPosition(path[i]);
-        // }
+        map.setZoom(path[i]);
+        map.setCenter(path[i]);
+        marker.setPosition(path[i]);
       }
-  }, 300); // default: 300 */
-};
-
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
+  }, 100); // default: 300
 };
 
 function showTravelDetails() {
@@ -655,6 +644,7 @@ function showTravelDetails() {
   // $('.showTime').html(destinationDetails.duration.text);
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
+
 }
 
 function resizeMap() {
@@ -730,15 +720,14 @@ $(document).ready(function() {
   })
 
   $('#closeRightSidebarBtn').click(function() {
+    if (previousPage == "favorite") {
+      $('.openFavoriteList').trigger("click");
+      initMap();
+    }
     closeRightBar();
     $('#bottomBar').show();
     $('#goToAutocomplete').hide();
     autocompleteClicked = 1;
-    var marker = new google.maps.Marker({
-      map: map,
-      position: currentLocation
-      // anchorPoint: new google.maps.Point(0, -29)
-    });
   });
 
   $('#OpenFavoriteAskModal').click(function() {
@@ -802,7 +791,7 @@ $(document).ready(function() {
   })
 
   $('.home-office').click(function() {
-    $('#header').show('fast');
+    // $('#header').show('fast');
     $('#header-title').html('집 & 직장');
   })
 
