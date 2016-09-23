@@ -301,6 +301,7 @@ html, body {
 }
 
 #autocompletePlaceName {
+  height: 70px;
   padding-top: 20px;
   color: #585858;
   font-size: 35px;
@@ -309,12 +310,14 @@ html, body {
 }
 
 #autocompletePlaceCity {
+  height: 35.33px;
   text-align: center;
   font-size: 25px;
   color: #828282;
 }
 
 #autocompletePlaceDistance {
+  height: 85.33px;
   text-align: center;
   font-size: 25px;
   color: #858585;
@@ -390,7 +393,7 @@ html, body {
 }
 
 #favoritesModal .modal-dialog {
-  height: 45%;
+  /*height: 45%;*/
 }
 
 #favoritesModal .modal-body {
@@ -482,6 +485,10 @@ html, body {
 #addWaypoints img {
   height: 60%;
   opacity: 0.3;
+}
+
+.middleFunctions {
+  font-size: 25px;
 }
 
 .middleFunctions a, .middleFunctions a:hover {

@@ -604,11 +604,12 @@ function animate(path) {
         $('#bottomBar').show('fast');
         initMap();
       } else {
+        currentLocation = path[i];
         infowindow.close();
         map.setCenter(path[i]);
         marker.setPosition(path[i]);
       }
-  }, 200); // default: 200
+  }, 20); // default: 200
 };
 
 function showTravelDetails() {
