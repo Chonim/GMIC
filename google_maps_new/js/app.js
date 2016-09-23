@@ -25,6 +25,7 @@ var distanceMatrixArray = [];
 var markersArray = [];
 var getEstimatedDetailsResponse = [];
 
+var mapTypeId = 'roadmap';
 var autocomplete = null;
 var isWaypoint = false;
 var autocompleteClicked = 0;
@@ -60,14 +61,14 @@ var styleArray = [
 
 function initMap() {
   console.log(viewportHeight);
-  currentLocation = {lat: 37.7749295, lng: -122.4194155}
   var viewportHeight = window.innerHeight;
   $('#map').css('height', viewportHeight-40);
   mapCanvasId = 'map'
   var mapOptions = {
     center: currentLocation,
     zoom: 19,
-    styles: styleArray
+    styles: styleArray,
+    mapTypeId: mapTypeId
   }
 
   map = new google.maps.Map(document.getElementById(mapCanvasId),
@@ -99,6 +100,10 @@ function initMap() {
   });
   map.setCenter(currentLocation);
   markersArray.push(marker);
+
+  map.addListener('maptypeid_changed', function() {
+    mapTypeId = map.getMapTypeId();
+  })
 
   // Traffic Layer 추가
   // var trafficLayer = new google.maps.TrafficLayer();
@@ -256,6 +261,7 @@ function showPlaceInfo(index) {
 
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
 function gasMap() {
+  previousPage = "gasMap";
 
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
@@ -536,8 +542,11 @@ function animate(path) {
     console.log(map.getZoom());
     $('#header').show();
     animatePath = setInterval(function() {
-      map.setZoom(17);
       if (path[i].toString() == steps[leg].path[0].toString()) {
+        // Change zoom when there is an instruction
+        if (map.getZoom() !== 17) {
+          map.setZoom(17);
+        }
         if (leg < steps.length) {
           $('#header-title').html(steps[leg].instructions);
 
@@ -586,6 +595,7 @@ function animate(path) {
 
       // Close when reached a destination
       if (i == path.length) {
+        currentLocation = path[i-1];
         clearInterval(animatePath);
         i=0;
         $('#goToAutocomplete').hide('fast');
@@ -595,11 +605,10 @@ function animate(path) {
         initMap();
       } else {
         infowindow.close();
-        map.setZoom(path[i]);
         map.setCenter(path[i]);
         marker.setPosition(path[i]);
       }
-  }, 100); // default: 300
+  }, 200); // default: 200
 };
 
 function showTravelDetails() {
@@ -723,6 +732,10 @@ $(document).ready(function() {
     if (previousPage == "favorite") {
       $('.openFavoriteList').trigger("click");
       initMap();
+    } else if (previousPage == "gasMap") {
+      $('.gasMenu').trigger("click");
+      // $('#map').css('width', '45%');
+      // initMap();
     }
     closeRightBar();
     $('#bottomBar').show();
@@ -810,6 +823,7 @@ $(document).ready(function() {
   })
 
   $('#header-close').click(function() {
+    // $('#closeAskModal').trigger("click");
     if (confirm('정말 종료하시겠습니까?')) {
       clearInterval(animatePath);
       closeRightBar();
