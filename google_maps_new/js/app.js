@@ -852,6 +852,7 @@ $(document).ready(function() {
       createPolyline(getEstimatedDetailsResponse);
       map.setZoom(20);
     }
+    clearTimeout(triggerRealDeparture);
     navigationBottomBarToggle();
     $('#realDeparture').html("닫기");
   });

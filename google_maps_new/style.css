@@ -308,6 +308,7 @@ html, body {
   font-size: 35px;
   font-weight: bold;
   text-align: center;
+  overflow-y: hidden;
 }
 
 #autocompletePlaceCity {
