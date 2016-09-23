@@ -66,6 +66,7 @@ function initMap() {
   console.log(viewportHeight);
   var viewportHeight = window.innerHeight;
   $('#map').css('height', viewportHeight-40);
+  $('#openNav > span').show();
   mapCanvasId = 'map'
   var mapOptions = {
     center: currentLocation,
@@ -280,7 +281,7 @@ function gasMap() {
   $('#gasStationInfoBar').show('fast');
   $('#gasStationInfoBar').css('width', '55%');
   if (typeof directionsDisplay !== "undefined") {
-    directionsDisplay.setMap(null);
+    directionsDisplay.setMap(map);
   }
   infowindow = new google.maps.InfoWindow();
 
@@ -422,7 +423,9 @@ function closeNav() {
   }
   $('#mySidenav').css('width', '0%');
   $('#bottomBar').css('width', '100%');
-  $('#map').css('width', '100%');
+  if ($('#mySidenav').width() == 864) {
+    $('#map').css('width', '100%');
+  }
   $('#menuList').hide("slow");
 }
 // Sidebar end
@@ -674,6 +677,7 @@ function showTravelDetails() {
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
 
+
   // Get street view panorama
   var panorama = new google.maps.StreetViewPanorama(
     document.getElementById('destinationPanorama'), {
@@ -820,8 +824,8 @@ $(document).ready(function() {
 
   $('#departureBtn').click(function() {
     showTravelDetails();
+    $('#openNav > span').hide();
     $('#navigationBottomBar').css('height','100%');
-    console.log($('#navigationBottomBar').height());
     $('#navigationBottomBar').show('fast');
 
     // Automatic transition to navigation

@@ -15,6 +15,7 @@
   padding-right: 10px;
   height: 30px;
   border-right: 1px solid #FFF;
+  visibility: hidden;
 }
 
 #header-title {
