@@ -19,6 +19,7 @@ var line;
 var animatePath;
 var previousPage;
 var localStorageLength;
+var triggerRealDeparture;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -91,6 +92,7 @@ function initMap() {
 
   });
 
+  // Draw circle around a marker
   drawCircle();
 
   map.setCenter(currentLocation);
@@ -183,6 +185,7 @@ function autoComplete() {
   });
 }
 
+// Show place info with right nav
 function getAutocompleteResult() {
   closeNav();
   $('#map').css('width', '35%');
@@ -240,7 +243,6 @@ function getAutocompleteResult() {
       }
 
     }, 800);
-
 }
 
 function getPlaceAddress() {
@@ -470,7 +472,7 @@ function getEstimatedDetails(wypts) {
     //   stopover : false
     // });
   }
-  directionsService = null; // reset directions
+  turnOffDirections(); // reset directions
   directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
@@ -480,12 +482,12 @@ function getEstimatedDetails(wypts) {
     unitSystem: google.maps.UnitSystem.METRIC,
     travelMode: google.maps.TravelMode.DRIVING
   }, function(response) {
-      destinationDetails = response.routes[0].legs[0];
-      directionsDisplay.setDirections(response);
-      directionsDisplay.setMap(map);
-      steps = destinationDetails.steps;
-      $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
-      getEstimatedDetailsResponse = response;
+    destinationDetails = response.routes[0].legs[0];
+    directionsDisplay.setDirections(response);
+    directionsDisplay.setMap(map);
+    steps = destinationDetails.steps;
+    $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
+    getEstimatedDetailsResponse = response;
   });
   // map.setZoom(20);
   // map.setCenter(autocompleteLocation);
@@ -494,6 +496,11 @@ function getEstimatedDetails(wypts) {
   var recentDesination = JSON.stringify({'name': autocompletePlaceName, 'coords': autocompleteLocation, 'address': address});
   sessionStorage.setItem(autocompletePlaceName, recentDesination);
   autocomplete = null;
+}
+
+function turnOffDirections() {
+  directionsService = null;
+  directionsDisplay = null;
 }
 
 function createPolyline(directionResult) {
@@ -667,6 +674,38 @@ function showTravelDetails() {
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
 
+  // Get street view panorama
+  var panorama = new google.maps.StreetViewPanorama(
+    document.getElementById('destinationPanorama'), {
+      position: autocompleteLocation,
+      pov: {
+        heading: 34,
+        pitch: 10
+      }
+    }
+  );
+  map.setStreetView(panorama);
+  //
+  // $('#destinationRoutes').html("<img src='https://maps.googleapis.com/maps/api/streetview?size=500x500&location="
+  //               							+ autocompleteLocation
+  //               							+ "&heading=151.78&pitch=-0.76&key=AIzaSyBsYVLaGllEz-XZYoF6xv_wqPsrG0k7oFs"
+  //               							+ "'>")
+}
+
+function getPlaceDetails() {
+  var request = {
+    placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
+  };
+
+  service = new google.maps.places.PlacesService(map);
+  service.getDetails(request, callback);
+
+  function callback(place, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      createMarker(place);
+      console.log(place)
+    }
+  }
 }
 
 function resizeMap() {
@@ -744,6 +783,9 @@ $(document).ready(function() {
   })
 
   $('#closeRightSidebarBtn').click(function() {
+    clearInterval(animatePath);
+    clearTimeout(triggerRealDeparture);
+    turnOffDirections();
     if (previousPage == "favorite") {
       $('.openFavoriteList').trigger("click");
       initMap();
@@ -754,6 +796,7 @@ $(document).ready(function() {
     }
     closeRightBar();
     $('#bottomBar').show();
+    $('#navigationBottomBar').hide();
     $('#goToAutocomplete').hide();
     autocompleteClicked = 1;
   });
@@ -780,6 +823,11 @@ $(document).ready(function() {
     $('#navigationBottomBar').css('height','100%');
     console.log($('#navigationBottomBar').height());
     $('#navigationBottomBar').show('fast');
+
+    // Automatic transition to navigation
+    triggerRealDeparture = setTimeout(function() {
+      $('#realDeparture').trigger("click");
+    }, 10000);
   })
 
   $('.navigationBottomBarTitle').click(function() {
@@ -794,13 +842,17 @@ $(document).ready(function() {
   })
 
   $('#realDeparture').click(function() {
-    closeRightBar();
+    if ($('#realDeparture').html() == "닫기") {
+      // $('#navigationBottomBar').hide('fast');
+      // $('#bottomBar').show('fast');
+    } else {
+      closeRightBar();
+      resizeMap();
+      getEstimatedDetails();
+      createPolyline(getEstimatedDetailsResponse);
+      map.setZoom(20);
+    }
     navigationBottomBarToggle();
-    resizeMap();
-    getEstimatedDetails();
-    createPolyline(getEstimatedDetailsResponse);
-
-    map.setZoom(20);
     $('#realDeparture').html("닫기");
   });
 

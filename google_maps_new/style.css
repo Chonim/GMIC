@@ -96,6 +96,7 @@ input[type=text]{
 html, body {
   font-family: "Lato", sans-serif;
   height: 100%;
+  overflow-y: hidden;
 }
 
 .sidenav {
@@ -424,6 +425,7 @@ html, body {
   position: absolute;
   bottom: 0;
   height: 0;
+  min-width: 960px;
   width: 100%;
   transition:  0.5s;
   z-index: 999;
@@ -458,6 +460,11 @@ html, body {
   transition: 0.5s;
   height:600px;
   background-color: #EEF3F4;
+}
+
+#destinationPanorama {
+  width: 440px;
+  height: 400px;
 }
 
 .destinationInfo {
