@@ -403,7 +403,7 @@ html, body {
 #favoriteListContents {
   background-color: #FFF;
   overflow-y: scroll;
-  height: 50%;
+  height: 450px;
 }
 
 #favoriteListContents a {

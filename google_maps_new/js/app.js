@@ -5,6 +5,7 @@ var infowindow;
 var mapCanvasId;
 var marker;
 var place;
+var circle;
 
 var input;
 var autocompletePlaceName;
@@ -17,6 +18,7 @@ var steps;
 var line;
 var animatePath;
 var previousPage;
+var localStorageLength;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -89,15 +91,8 @@ function initMap() {
 
   });
 
-  var circle = new google.maps.Circle({
-    radius: 30,
-    center: currentLocation,
-    map: map,
-    fillColor: '#333333',
-    fillOpacity: 0.15,
-    strokeColor: '#333333',
-    strokeOpacity: 0.6
-  });
+  drawCircle();
+
   map.setCenter(currentLocation);
   markersArray.push(marker);
 
@@ -116,6 +111,19 @@ function initMap() {
 
   // Get current location
   addYourLocationButton(map, marker);
+}
+
+function drawCircle() {
+  circle = null;
+  circle = new google.maps.Circle({
+    radius: 30,
+    center: currentLocation,
+    map: map,
+    fillColor: '#333333',
+    fillOpacity: 0.15,
+    strokeColor: '#333333',
+    strokeOpacity: 0.6
+  });
 }
 
 function addYourLocationButton(map, marker) {
@@ -542,6 +550,9 @@ function animate(path) {
     console.log(map.getZoom());
     $('#header').show();
     animatePath = setInterval(function() {
+      // if (i = 0) {
+      //   map.setZoom(17);
+      // }
       if (path[i].toString() == steps[leg].path[0].toString()) {
         // Change zoom when there is an instruction
         if (map.getZoom() !== 17) {
@@ -600,6 +611,7 @@ function animate(path) {
         i=0;
         $('#goToAutocomplete').hide('fast');
         $('#header').hide('fast');
+        $('#header-title').html("");
         $('#navigationBottomBar').hide('fast');
         $('#bottomBar').show('fast');
         initMap();
@@ -609,7 +621,7 @@ function animate(path) {
         map.setCenter(path[i]);
         marker.setPosition(path[i]);
       }
-  }, 20); // default: 200
+  }, 200); // default: 200
 };
 
 function showTravelDetails() {
@@ -674,12 +686,14 @@ $(document).ready(function() {
   $('#menuList').hide();
   $('#navigationBottomBar').hide();
   $('#header').hide();
+  $('#header-title').html("");
 
   $('.openFavoriteList').click(function() {
-    if ($('#favoriteListContents > a').html() == null) {
-      for(var i = 0; i < localStorage.length; i++) {
-        $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + i + '\')">&#9733; ' + localStorage.key(i) + '</a>');
-      }
+    if ($('#favoriteListContents > a').html() !== null) {
+      $('.favoriteListContentsItem').remove();
+    }
+    for(var i = 0; i < localStorage.length; i++) {
+      $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + i + '\')">&#9733; ' + localStorage.key(i) + '</a>');
     }
   })
 
