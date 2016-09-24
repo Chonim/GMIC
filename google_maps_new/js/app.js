@@ -20,6 +20,8 @@ var animatePath;
 var previousPage;
 var localStorageLength;
 var triggerRealDeparture;
+var remainDistance;
+var remainTime;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -188,6 +190,7 @@ function autoComplete() {
 
 // Show place info with right nav
 function getAutocompleteResult() {
+  previousPage = "autocomplete";
   closeNav();
   $('#map').css('width', '35%');
   $('#map').css('float', 'left');
@@ -619,6 +622,8 @@ function animate(path) {
         currentLocation = path[i-1];
         clearInterval(animatePath);
         i=0;
+        $('#estimatedTime').html(0 + " 분");
+        $('#estimatedDistance').html(0 + " m");
         $('#goToAutocomplete').hide('fast');
         $('#header').hide('fast');
         $('#header-title').html("");
@@ -630,6 +635,37 @@ function animate(path) {
         infowindow.close();
         map.setCenter(path[i]);
         marker.setPosition(path[i]);
+        console.log();
+
+        var remainMinutes = (remainTime-remainTime*(i/path.length))/60;
+        var remainHours = parseInt(remainMinutes/60);
+        var remainDays = parseInt(remainMinutes/60/24);
+
+        // Calculate and display remain time
+        if (remainMinutes >= 60*24) {
+          if (remainDays > 0) {
+            $('#estimatedTime').html(remainDays + " 일 " + remainHours%24 + " 시간")
+          } else if (remainHours > 0) {
+            $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
+          } else {
+            $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
+          }
+        } else if (remainMinutes >= 60) {
+          if (remainHours < 1) {
+            $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
+          } else {
+            $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
+          }
+        } else if (remainMinutes >= 0) {
+          $('#estimatedTime').html(parseInt(remainMinutes) + " 분");
+        }
+
+        // Calculate and display remain distance
+        if (parseInt((remainDistance-remainDistance*(i/path.length))/1000) >= 1) {
+          $('#estimatedDistance').html(parseInt((remainDistance-remainDistance*(i/path.length))/1000) + " km");
+        } else {
+          $('#estimatedDistance').html(parseInt(remainDistance-remainDistance*(i/path.length)) + " m");
+        }
       }
   }, 200); // default: 200
 };
@@ -644,6 +680,9 @@ function showTravelDetails() {
   var estimatedHours = estimatedTime/3600;
   var estimatedMinutes = parseInt(estimatedTime/60);
   var durationText = '';
+
+  remainTime = destinationDetails.duration.value;
+  remainDistance = destinationDetails.distance.value;
 
   durationText = destinationDetails.duration.text;
   durationText.replace("hour", "시간");
@@ -797,6 +836,9 @@ $(document).ready(function() {
       $('.gasMenu').trigger("click");
       // $('#map').css('width', '45%');
       // initMap();
+    } else if (previousPage == "autocomplete") {
+      initMap();
+      openNav();
     }
     closeRightBar();
     $('#bottomBar').show();
