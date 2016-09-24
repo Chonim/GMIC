@@ -3,7 +3,7 @@
   height: 50px;
   width: 100%;
   background-color: #96C5D3;
-  z-index: 9999;
+  z-index: 998;
 }
 
 #header div {
@@ -15,12 +15,15 @@
   padding-right: 10px;
   height: 30px;
   border-right: 1px solid #FFF;
+  visibility: hidden;
 }
 
 #header-title {
   font-size: 40px;
   color: #19596C;
   text-align: center;
+  height: 50px;
+  overflow: hidden;
 }
 
 #header-close {
@@ -80,7 +83,7 @@ input[type=text]{
 }
 
 #map {
-  height: 760px;
+  height: 560px;
   width: 100%;
   transition: 0.5s;
   float: right;
@@ -94,6 +97,7 @@ input[type=text]{
 html, body {
   font-family: "Lato", sans-serif;
   height: 100%;
+  overflow-y: hidden;
 }
 
 .sidenav {
@@ -182,8 +186,8 @@ html, body {
 }
 
 @media screen and (max-height: 450px) {
-  .sidenav {padding-top: 15px;}
-  .sidenav a {font-size: 18px;}
+  /*.sidenav a {font-size: 18px;}*/
+  body {font-size: 18px !important; }
 }
 /*Sidebar end*/
 
@@ -205,10 +209,6 @@ html, body {
 .modal-title {
   text-align: center;
   font-weight: bold;
-}
-
-.modal-body {
-  height: 500px;
 }
 
 /*Modal end*/
@@ -303,20 +303,24 @@ html, body {
 }
 
 #autocompletePlaceName {
+  height: 70px;
   padding-top: 20px;
   color: #585858;
   font-size: 35px;
   font-weight: bold;
   text-align: center;
+  overflow-y: hidden;
 }
 
 #autocompletePlaceCity {
+  height: 35.33px;
   text-align: center;
   font-size: 25px;
   color: #828282;
 }
 
 #autocompletePlaceDistance {
+  height: 85.33px;
   text-align: center;
   font-size: 25px;
   color: #858585;
@@ -361,7 +365,7 @@ html, body {
 }
 
 #favoriteAskModal .modal-body {
-  height: 50px;
+  height: 50%;
 }
 
 #closeAskModal {
@@ -391,10 +395,18 @@ html, body {
   width: 100%;
 }
 
+#favoritesModal .modal-dialog {
+  /*height: 45%;*/
+}
+
+#favoritesModal .modal-body {
+  height: 40%;
+}
+
 #favoriteListContents {
   background-color: #FFF;
   overflow-y: scroll;
-  height: 100%;
+  height: 450px;
 }
 
 #favoriteListContents a {
@@ -414,7 +426,8 @@ html, body {
 #navigationBottomBar {
   position: absolute;
   bottom: 0;
-  height: 680px;
+  height: 0;
+  min-width: 960px;
   width: 100%;
   transition:  0.5s;
   z-index: 999;
@@ -451,6 +464,11 @@ html, body {
   background-color: #EEF3F4;
 }
 
+#destinationPanorama {
+  width: 440px;
+  height: 400px;
+}
+
 .destinationInfo {
   height:100%;
   border-right: 1px solid #DBDFE0;
@@ -476,6 +494,10 @@ html, body {
 #addWaypoints img {
   height: 60%;
   opacity: 0.3;
+}
+
+.middleFunctions {
+  font-size: 25px;
 }
 
 .middleFunctions a, .middleFunctions a:hover {

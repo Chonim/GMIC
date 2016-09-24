@@ -12,6 +12,7 @@
   <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&client=gme-sphinc&libraries=places&signed_in=false"></script> -->
   <script src="https://www.google.com/jsapi"></script>
   <script src="js/app.js" charset="utf-8"></script>
+  <script src="js/voiceRecognition.js" charset="utf-8"></script>
   <script src="js/daynightoverlay.js" charset="utf-8"></script>
   <!-- <script src="http://code.responsivevoice.org/responsivevoice.js"></script> -->
 </head>
@@ -108,8 +109,8 @@
         </div>
         <div class="col-sm-12 placeIconWrapper"><img class="autocompletePlaceIcon" src="image/info.png" /></div>
         <div class="col-sm-12" id="autocompletePlaceName"></div>
-        <div class="col-sm-12" id="autocompletePlaceCity">서울특별시</div>
-        <div class="col-sm-12" id="autocompletePlaceDistance">0.5킬로미터 떨어져 있음</div>
+        <div class="col-sm-12" id="autocompletePlaceCity"></div>
+        <div class="col-sm-12" id="autocompletePlaceDistance"></div>
         <!-- <div class="col-sm-2"></div>
         <div class="col-sm-8 center-block autocompletePlaceLine"></div>
         <div class="col-sm-2"></div>
@@ -117,8 +118,8 @@
           415-425-7623
         </div> -->
         <div class="col-sm-12 afterPhoneNumberLine"></div>
-        <div class="col-sm-4 reserveDepart"><button type="button" class="btn btn-default btn-block">예약</button></div>
-        <div class="col-sm-8 reserveDepart"><button type="button" id="departureBtn" class="btn btn-info btn-block">출발 </button></div>
+        <!-- <div class="col-sm-4 reserveDepart"><button type="button" class="btn btn-default btn-block">예약</button></div> -->
+        <div class="col-sm-12 reserveDepart"><button type="button" id="departureBtn" class="btn btn-info btn-block">출발 </button></div>
       </div>
     </div>
 
@@ -141,7 +142,7 @@
             <p>Some text in the modal.</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default close-home-work" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-default close-home-office" data-dismiss="modal">Close</button>
           </div>
         </div>
 
@@ -253,10 +254,10 @@
         <div class="col-sm-2 showTime">
           <!-- 목적지 도착 시간 -->
         </div>
-        <div class="col-sm-2" id="estimatedDistance">
+        <div class="col-sm-3" id="estimatedDistance">
           <!-- 거리 -->
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
 
         </div>
       </div>
@@ -264,7 +265,7 @@
         <div class="col-sm-6 destinationInfo">
           <div id="destinationName">
           </div>
-          <div id="destinationRoutes">
+          <div id="destinationPanorama">
           </div>
         </div>
         <div class="col-sm-6 navigationBottomBarBodyRight">
@@ -287,8 +288,8 @@
             </div>
           </div>
           <div class="bottomBottons col-sm-12" id="">
-            <div class="col-sm-4"><button type="button" class="btn btn-default btn-block">예약</button></div>
-            <div class="col-sm-8"><button type="button" id="realDeparture" class="btn btn-info btn-block">출발</button></div>
+            <!-- <div class="col-sm-4"><button type="button" class="btn btn-default btn-block">예약</button></div> -->
+            <div class="col-sm-12"><button type="button" id="realDeparture" class="btn btn-info btn-block">출발</button></div>
           </div>
         </div>
       </div>

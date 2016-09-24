@@ -5,6 +5,7 @@ var infowindow;
 var mapCanvasId;
 var marker;
 var place;
+var circle;
 
 var input;
 var autocompletePlaceName;
@@ -15,6 +16,10 @@ var directionsDisplay;
 var directionsService;
 var steps;
 var line;
+var animatePath;
+var previousPage;
+var localStorageLength;
+var triggerRealDeparture;
 
 var currentLocationArray = [];
 var gasStationTextArray = [];
@@ -23,6 +28,7 @@ var distanceMatrixArray = [];
 var markersArray = [];
 var getEstimatedDetailsResponse = [];
 
+var mapTypeId = 'roadmap';
 var autocomplete = null;
 var isWaypoint = false;
 var autocompleteClicked = 0;
@@ -57,14 +63,16 @@ var styleArray = [
 ];
 
 function initMap() {
-  currentLocation = {lat: 37.7749295, lng: -122.4194155}
+  console.log(viewportHeight);
   var viewportHeight = window.innerHeight;
-  $('#map').css('height', viewportHeight-60);
+  $('#map').css('height', viewportHeight-40);
+  $('#openNav > span').show();
   mapCanvasId = 'map'
   var mapOptions = {
     center: currentLocation,
     zoom: 19,
-    styles: styleArray
+    styles: styleArray,
+    mapTypeId: mapTypeId
   }
 
   map = new google.maps.Map(document.getElementById(mapCanvasId),
@@ -83,23 +91,21 @@ function initMap() {
   position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
 
-
   });
 
-  var circle = new google.maps.Circle({
-    radius: 30,
-    center: currentLocation,
-    map: map,
-    fillColor: '#333333',
-    fillOpacity: 0.15,
-    strokeColor: '#333333',
-    strokeOpacity: 0.6
-  });
+  // Draw circle around a marker
+  drawCircle();
+
+  map.setCenter(currentLocation);
   markersArray.push(marker);
 
+  map.addListener('maptypeid_changed', function() {
+    mapTypeId = map.getMapTypeId();
+  })
+
   // Traffic Layer 추가
-  var trafficLayer = new google.maps.TrafficLayer();
-  trafficLayer.setMap(map);
+  // var trafficLayer = new google.maps.TrafficLayer();
+  // trafficLayer.setMap(map);
 
   // 밤낮 에이어 추가
   // new DayNightOverlay({
@@ -110,9 +116,21 @@ function initMap() {
   addYourLocationButton(map, marker);
 }
 
+function drawCircle() {
+  circle = null;
+  circle = new google.maps.Circle({
+    radius: 30,
+    center: currentLocation,
+    map: map,
+    fillColor: '#333333',
+    fillOpacity: 0.15,
+    strokeColor: '#333333',
+    strokeOpacity: 0.6
+  });
+}
+
 function addYourLocationButton(map, marker) {
     var controlDiv = document.createElement('div');
-
     var firstChild = document.createElement('button');
     firstChild.style.backgroundColor = 'rgba(0, 0, 0, 0)';
     firstChild.style.border = 'none';
@@ -168,6 +186,7 @@ function autoComplete() {
   });
 }
 
+// Show place info with right nav
 function getAutocompleteResult() {
   closeNav();
   $('#map').css('width', '35%');
@@ -225,7 +244,6 @@ function getAutocompleteResult() {
       }
 
     }, 800);
-
 }
 
 function getPlaceAddress() {
@@ -241,6 +259,7 @@ function getPlaceAddress() {
 
 // Show location of favorite item
 function showPlaceInfo(index) {
+  previousPage = "favorite";
   $('.favoriteListCloseBtn').trigger("click");
   var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
 
@@ -253,6 +272,7 @@ function showPlaceInfo(index) {
 
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
 function gasMap() {
+  previousPage = "gasMap";
 
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
@@ -261,7 +281,7 @@ function gasMap() {
   $('#gasStationInfoBar').show('fast');
   $('#gasStationInfoBar').css('width', '55%');
   if (typeof directionsDisplay !== "undefined") {
-    directionsDisplay.setMap(null);
+    directionsDisplay.setMap(map);
   }
   infowindow = new google.maps.InfoWindow();
 
@@ -403,7 +423,9 @@ function closeNav() {
   }
   $('#mySidenav').css('width', '0%');
   $('#bottomBar').css('width', '100%');
-  $('#map').css('width', '100%');
+  if ($('#mySidenav').width() == 864) {
+    $('#map').css('width', '100%');
+  }
   $('#menuList').hide("slow");
 }
 // Sidebar end
@@ -411,6 +433,7 @@ function closeNav() {
 function openRightBar() {
   $('#map').css('width', '35%');
   $('#rightBar').css('width', '65%');
+  $('#realDeparture').html("출발");
   // console.log(map.getBounds())
 }
 
@@ -432,13 +455,14 @@ function inputFocusOrGoToAutocomplete() {
 
 function navigationBottomBarToggle(e) {
   if ($('#navigationBottomBar').height() < 60) {
-    $('#navigationBottomBar').css('height','680px');
+    $('#navigationBottomBar').css('height','100%');
   } else {
     $('#navigationBottomBar').css('height','50px');
   }
 }
 
 function getEstimatedDetails(wypts) {
+  google.maps.event.trigger(map, "resize");
   var wayPoints = [];
   if (wypts !== null) {
     wayPoints.push({
@@ -451,7 +475,7 @@ function getEstimatedDetails(wypts) {
     //   stopover : false
     // });
   }
-  directionsService = null; // reset directions
+  turnOffDirections(); // reset directions
   directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
   directionsService.route({
@@ -461,19 +485,25 @@ function getEstimatedDetails(wypts) {
     unitSystem: google.maps.UnitSystem.METRIC,
     travelMode: google.maps.TravelMode.DRIVING
   }, function(response) {
-      map.setZoom(20);
-      destinationDetails = response.routes[0].legs[0];
-      // directionsDisplay.setMap(map);
-      directionsDisplay.setDirections(response);
-      directionsDisplay.setMap(map);
-      steps = destinationDetails.steps;
-        // console.log(steps[i].maneuver + steps[i].distance.text + steps[i].instructions);
-      $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
-      getEstimatedDetailsResponse = response;
+    destinationDetails = response.routes[0].legs[0];
+    directionsDisplay.setDirections(response);
+    directionsDisplay.setMap(map);
+    steps = destinationDetails.steps;
+    $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
+    getEstimatedDetailsResponse = response;
   });
-  map.setCenter(autocompleteLocation);
-  google.maps.event.trigger(map, "resize");
+  // map.setZoom(20);
+  // map.setCenter(autocompleteLocation);
+
+  // Save recent destination in sessionStorage
+  var recentDesination = JSON.stringify({'name': autocompletePlaceName, 'coords': autocompleteLocation, 'address': address});
+  sessionStorage.setItem(autocompletePlaceName, recentDesination);
   autocomplete = null;
+}
+
+function turnOffDirections() {
+  directionsService = null;
+  directionsDisplay = null;
 }
 
 function createPolyline(directionResult) {
@@ -506,23 +536,38 @@ function createPolyline(directionResult) {
       }
     }
   }
+  // for(var j=1; j=10; j++){
+  //   var subLat = (path[i].lat()+path[i+1].lat())/2;
+  //   var subLng = (path[i].lat()+path[i+1].lng())/2;
+  //   console.log(new google.maps.LatLng(subLat, subLng));
+  //   // map.setCenter(new google.maps.LatLng(subLat, subLng));
+  //   map.setCenter(path[i]);
+  //   marker.setPosition(path[i]);
+  //   sleep(30);
+  // }
 
   line.setMap(map);
   map.fitBounds(bounds);
-  // animate(directionResult.routes[0].overview_path);
+  map.setZoom(18);
   animate(entirePath);
   console.log(entirePath.length);
+  console.log(map.getZoom());
 };
 
 function animate(path) {
     var i = 0;
     var leg = 0;
-    // console.log(path[5].toString())
-    map.setZoom(18);
-    var animatePath = setInterval(function() {
-      // console.log(path[i].toString())
+    console.log(map.getZoom());
+    $('#header').show();
+    animatePath = setInterval(function() {
+      // if (i = 0) {
+      //   map.setZoom(17);
+      // }
       if (path[i].toString() == steps[leg].path[0].toString()) {
-        $('#header').show();
+        // Change zoom when there is an instruction
+        if (map.getZoom() !== 17) {
+          map.setZoom(17);
+        }
         if (leg < steps.length) {
           $('#header-title').html(steps[leg].instructions);
 
@@ -537,25 +582,30 @@ function animate(path) {
             msg.voice = voices[2];
             msg.volume = 3;
 
-            console.log(msg.text);
+            // Optional
+
             // Speak only if it's a new one
             if (msg.text !== text) {
               msg.text = text;
+              console.log(msg.text);
 
               // Queue this utterance.
               window.speechSynthesis.speak(msg);
               // console.log(msg);
             }
           }
-
           msg = new SpeechSynthesisUtterance();
-          // console.log(msg.voice);
 
-          window.speechSynthesis.onvoiceschanged = function(e) {
+          if ( window.speechSynthesis.onvoiceschanged == null) {
+            window.speechSynthesis.onvoiceschanged = function(e) {
+              loadVoices();
+            };
+          } else {
             loadVoices();
-          };
-          loadVoices();
+          }
+
           leg++;
+
           if (leg == steps.length) {
             leg = 0;
             // i = 0;
@@ -566,74 +616,23 @@ function animate(path) {
 
       // Close when reached a destination
       if (i == path.length) {
+        currentLocation = path[i-1];
         clearInterval(animatePath);
         i=0;
         $('#goToAutocomplete').hide('fast');
         $('#header').hide('fast');
+        $('#header-title').html("");
         $('#navigationBottomBar').hide('fast');
         $('#bottomBar').show('fast');
         initMap();
       } else {
+        currentLocation = path[i];
         infowindow.close();
-        map.panTo(path[i]);
+        map.setCenter(path[i]);
         marker.setPosition(path[i]);
       }
-  }, 30); // default: 300
+  }, 200); // default: 200
 };
-
-// Shows route and text 1 by 1
-function simulateRoute() {
-  $('#header').show();
-  var index = steps.length;
-  map.setZoom(10);
-  for (var i = 0; i < steps.length; i++) {
-    // $('#header-title').append('<br />' + steps[i].instructions);
-  }
-  window.setInterval(function(){
-    // console.log(steps.length);
-    // console.log(steps.length - index);
-    if (index > 0) {
-      map.setZoom(17);
-      // map.panTo(steps[steps.length - index].start_location);
-      marker = null;
-      marker = new google.maps.Marker({
-        map: map,
-        position: steps[steps.length - index].start_location
-        // anchorPoint: new google.maps.Point(0, -29)
-      });
-      console.log(index)
-      $('#header-title').html(steps[steps.length - index].instructions);
-      var text = $('#header-title').text();
-
-      var voices;
-      var msg;
-
-      function loadVoices() {
-        voices = speechSynthesis.getVoices();
-        // console.log(voices);
-
-        msg.voice = voices[2];
-        msg.text = text;
-        msg.volume = 3;
-
-        // Queue this utterance.
-        window.speechSynthesis.speak(msg);
-        // console.log(msg);
-      }
-
-      msg = new SpeechSynthesisUtterance();
-      // console.log(msg.voice);
-      window.speechSynthesis.onvoiceschanged = function(e) {
-        loadVoices();
-      };
-      loadVoices();
-
-      index--;
-    } else {
-      index = steps.length;
-    }
-  }, 2000); // Ideal: 5000ms
-}
 
 function showTravelDetails() {
   // Time and Distance
@@ -671,15 +670,46 @@ function showTravelDetails() {
     arrivalHours = (arrivalHours % 24) - 1;
   }
 
-  // console.log(destinationDetails.duration);
-  console.log(arrivalMinutes);
-
   // Panel body
 
   $('.showTime').html(parseInt(arrivalHours) + ":"+ (arrivalMinutes < 10 ? "0" + arrivalMinutes : arrivalMinutes));
   // $('.showTime').html(destinationDetails.duration.text);
   $('#estimatedDistance').html(destinationDetails.distance.text);
   $('#destinationName').html(autocompletePlaceName);
+
+
+  // Get street view panorama
+  var panorama = new google.maps.StreetViewPanorama(
+    document.getElementById('destinationPanorama'), {
+      position: autocompleteLocation,
+      pov: {
+        heading: 34,
+        pitch: 10
+      }
+    }
+  );
+  map.setStreetView(panorama);
+  //
+  // $('#destinationRoutes').html("<img src='https://maps.googleapis.com/maps/api/streetview?size=500x500&location="
+  //               							+ autocompleteLocation
+  //               							+ "&heading=151.78&pitch=-0.76&key=AIzaSyBsYVLaGllEz-XZYoF6xv_wqPsrG0k7oFs"
+  //               							+ "'>")
+}
+
+function getPlaceDetails() {
+  var request = {
+    placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
+  };
+
+  service = new google.maps.places.PlacesService(map);
+  service.getDetails(request, callback);
+
+  function callback(place, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      createMarker(place);
+      console.log(place)
+    }
+  }
 }
 
 function resizeMap() {
@@ -699,12 +729,14 @@ $(document).ready(function() {
   $('#menuList').hide();
   $('#navigationBottomBar').hide();
   $('#header').hide();
+  $('#header-title').html("");
 
   $('.openFavoriteList').click(function() {
-    if ($('#favoriteListContents > a').html() == null) {
-      for(var i = 0; i < localStorage.length; i++) {
-        $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + i + '\')">&#9733; ' + localStorage.key(i) + '</a>');
-      }
+    if ($('#favoriteListContents > a').html() !== null) {
+      $('.favoriteListContentsItem').remove();
+    }
+    for(var i = 0; i < localStorage.length; i++) {
+      $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + i + '\')">&#9733; ' + localStorage.key(i) + '</a>');
     }
   })
 
@@ -755,15 +787,22 @@ $(document).ready(function() {
   })
 
   $('#closeRightSidebarBtn').click(function() {
+    clearInterval(animatePath);
+    clearTimeout(triggerRealDeparture);
+    turnOffDirections();
+    if (previousPage == "favorite") {
+      $('.openFavoriteList').trigger("click");
+      initMap();
+    } else if (previousPage == "gasMap") {
+      $('.gasMenu').trigger("click");
+      // $('#map').css('width', '45%');
+      // initMap();
+    }
     closeRightBar();
     $('#bottomBar').show();
+    $('#navigationBottomBar').hide();
     $('#goToAutocomplete').hide();
     autocompleteClicked = 1;
-    var marker = new google.maps.Marker({
-      map: map,
-      position: currentLocation
-      // anchorPoint: new google.maps.Point(0, -29)
-    });
   });
 
   $('#OpenFavoriteAskModal').click(function() {
@@ -785,8 +824,14 @@ $(document).ready(function() {
 
   $('#departureBtn').click(function() {
     showTravelDetails();
-    $('#navigationBottomBar').show('slow');
-    navigationBottomBarToggle();
+    $('#openNav > span').hide();
+    $('#navigationBottomBar').css('height','100%');
+    $('#navigationBottomBar').show('fast');
+
+    // Automatic transition to navigation
+    triggerRealDeparture = setTimeout(function() {
+      $('#realDeparture').trigger("click");
+    }, 10000);
   })
 
   $('.navigationBottomBarTitle').click(function() {
@@ -801,14 +846,18 @@ $(document).ready(function() {
   })
 
   $('#realDeparture').click(function() {
-    closeRightBar();
+    if ($('#realDeparture').html() == "닫기") {
+      // $('#navigationBottomBar').hide('fast');
+      // $('#bottomBar').show('fast');
+    } else {
+      closeRightBar();
+      resizeMap();
+      getEstimatedDetails();
+      createPolyline(getEstimatedDetailsResponse);
+      map.setZoom(20);
+    }
+    clearTimeout(triggerRealDeparture);
     navigationBottomBarToggle();
-    resizeMap();
-    // simulateRoute();
-    getEstimatedDetails();
-    createPolyline(getEstimatedDetailsResponse);
-
-    map.setZoom(20);
     $('#realDeparture').html("닫기");
   });
 
@@ -827,13 +876,15 @@ $(document).ready(function() {
   })
 
   $('.home-office').click(function() {
-    $('#header').show('fast');
+    // $('#header').show('fast');
     $('#header-title').html('집 & 직장');
   })
 
   $('#navagationClose').click(function() {
+    clearInterval(animatePath);
     closeRightBar();
     initMap();
+    $('#header').hide('fast');
     $('#navigationBottomBar').hide();
     $('#bottomBar').show();
     $('#realDeparture').html("출발");
@@ -844,15 +895,20 @@ $(document).ready(function() {
   })
 
   $('#header-close').click(function() {
-    $('#header').hide('fast');
-    $('#gasStationInfoBar').css('width', '0%');
-    $('#map').css('width', '100%');
-    initMap();
-    resizeMap();
-  })
-
-  $('#favoriteListContents > a').click(function() {
-    console.log(this);
+    // $('#closeAskModal').trigger("click");
+    if (confirm('정말 종료하시겠습니까?')) {
+      clearInterval(animatePath);
+      closeRightBar();
+      $('#header').hide('fast');
+      $('#gasStationInfoBar').css('width', '0%');
+      $('#map').css('width', '100%');
+      $('#navigationBottomBar').hide('fast');
+      $('#bottomBar').show('fast');
+      initMap();
+      resizeMap();
+    } else {
+      // Keep navigating
+    }
   })
 
   $('#addWaypoints').click(function() {
@@ -860,5 +916,9 @@ $(document).ready(function() {
     navigationBottomBarToggle();
     closeRightBar();
     openNav();
+  })
+
+  $('#microphone').click(function() {
+    startButton(event);
   })
 })
