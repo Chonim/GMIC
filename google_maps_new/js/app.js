@@ -662,7 +662,7 @@ function animate(path) {
 
         // Calculate and display remain distance
         if (parseInt((remainDistance-remainDistance*(i/path.length))/1000) >= 1) {
-          $('#estimatedDistance').html(parseInt((remainDistance-remainDistance*(i/path.length))/1000) + " km");
+          $('#estimatedDistance').html(parseInt((remainDistance-remainDistance*(i/path.length))/1000).toLocaleString() + " km");
         } else {
           $('#estimatedDistance').html(parseInt(remainDistance-remainDistance*(i/path.length)) + " m");
         }
