@@ -9,9 +9,8 @@ var circle;
 
 var input;
 var autocompletePlaceName;
-var autocompleteLocation;
+var finalDestinationCoords;
 var address;
-var destinationDetails;
 var directionsDisplay;
 var directionsService;
 var steps;
@@ -22,7 +21,9 @@ var localStorageLength;
 var triggerRealDeparture;
 var remainDistance;
 var remainTime;
+var waypointCoords;
 
+var destinationDetails = [];
 var currentLocationArray = [];
 var gasStationTextArray = [];
 var gasStationLatlngArray = [];
@@ -65,7 +66,8 @@ var styleArray = [
 ];
 
 function initMap() {
-  console.log(viewportHeight);
+  isWaypoint = false;
+  // console.log(viewportHeight);
   var viewportHeight = window.innerHeight;
   $('#map').css('height', viewportHeight-40);
   $('#openNav > span').show();
@@ -84,13 +86,13 @@ function initMap() {
   infowindow = new google.maps.InfoWindow();
 
   marker = new google.maps.Marker({
-  map: map,
-  icon: {
-    path: google.maps.SymbolPath.CIRCLE,
-    strokeColor: "#73C3D6",
-    scale: 8
-  },
-  position: currentLocation
+    map: map,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      strokeColor: "#73C3D6",
+      scale: 8
+    },
+    position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
 
   });
@@ -163,10 +165,10 @@ function addYourLocationButton(map, marker) {
             else imgX = '-18';
             $('#you_location_img').css('background-position', imgX+'px 0px');
         }, 500);
-        var latlng = new google.maps.LatLng(currentLocation);
+        var latlng = currentLocation;
         marker.setPosition(latlng);
         map.setCenter(latlng);
-        map.setZoom(20);
+        map.setZoom(18);
         clearInterval(animationInterval);
         // $('#you_location_img').css('background-position', '-144px 0px');
     });
@@ -208,21 +210,47 @@ function getAutocompleteResult() {
       //do something special
       infowindow.close();
       marker.setVisible(true);
-      console.log(autocomplete);
       if (autocomplete !== null) {
         place = autocomplete.getPlace();
+        console.log(place);
         getPlaceAddress();
 
         autocompletePlaceName = place.name;
-        autocompleteLocation = place.geometry.location;
-      } else {
-        // Set autocompletePlaceName, autocompleteLocation and address beforehand
+        if (isWaypoint == false) {
+          finalDestinationCoords = place.geometry.location;
+          marker = new google.maps.Marker({
+            map: map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              strokeColor: "#73C3D6",
+              scale: 8
+            },
+            position: finalDestinationCoords
+          });
+        } else {
+          // Add as a waypoint
+          console.log("wayway!");
+          waypointCoords = place.geometry.location
+          marker = new google.maps.Marker({
+            map: map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              strokeColor: "#73C3D6",
+              scale: 8
+            },
+            position: waypointCoords
+          });
+        }
+      } else {  // autocomplete == null
+        console.log("c");
+        marker = new google.maps.Marker({
+          map: map,
+          position: currentLocation
+        });
+        // Set autocompletePlaceName, finalDestinationCoords and address beforehand
       }
 
-      marker = new google.maps.Marker({
-        map: map,
-        position: autocompleteLocation
-      });
+
       deleteMarkers(markersArray);
       markersArray.push(marker);
 
@@ -235,16 +263,20 @@ function getAutocompleteResult() {
       }
 
       infowindow.setContent('<div><strong>' + autocompletePlaceName + '</strong><br>' + address);
-      infowindow.open(map, marker);
+      // infowindow.open(map, marker);
 
       // Decide if there is a waypoint
       console.log(isWaypoint);
       $('#map').css('width', '35%');
       if (isWaypoint == true) {
-        getEstimatedDetails(autocompleteLocation);
+        // var waypoint = place.geometry.location;
+        console.log(waypointCoords);
+        getEstimatedDetails(waypointCoords);
       } else {
         getEstimatedDetails();
       }
+
+      autocomplete = null;
 
     }, 800);
 }
@@ -268,7 +300,11 @@ function showPlaceInfo(index) {
 
   autocompletePlaceName = localStorageItem.name;
   address = localStorageItem.address;
-  autocompleteLocation = localStorageItem.coords;
+  if (isWaypoint == false) {
+    finalDestinationCoords = localStorageItem.coords;
+  } else {
+    waypointCoords = localStorageItem.coords;
+  }
 
   getAutocompleteResult();
 }
@@ -277,12 +313,17 @@ function showPlaceInfo(index) {
 function gasMap() {
   previousPage = "gasMap";
 
+
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
   $('#header-title').html('주유소');
   $('#header').show('fast');
   $('#gasStationInfoBar').show('fast');
   $('#gasStationInfoBar').css('width', '55%');
+
+  // Reset directions
+  turnOffDirections();
+  directionsDisplay = new google.maps.DirectionsRenderer;
   if (typeof directionsDisplay !== "undefined") {
     directionsDisplay.setMap(map);
   }
@@ -327,7 +368,7 @@ function createMarker(place) {
   google.maps.event.addListener(marker, 'click', function() {
     autocompletePlaceName = place.name;
     address = place.vicinity;
-    autocompleteLocation = place.geometry.location;
+    finalDestinationCoords = place.geometry.location;
     infowindow.setContent("<p><b>"+ place.name + "</b></p>" +
                           "<p>" + place.vicinity + "<p>" +
                           "<p><button onclick='markerOnClick()'>목적지로 설정</button><p>");
@@ -467,28 +508,32 @@ function navigationBottomBarToggle(e) {
 function getEstimatedDetails(wypts) {
   google.maps.event.trigger(map, "resize");
   var wayPoints = [];
-  if (wypts !== null) {
+  if (typeof wypts !== 'undefined') {
     wayPoints.push({
       location : wypts,
       stopover : true
     });
-  } else {
-    // wayPoints.push({
-    //   location : null,
-    //   stopover : false
-    // });
   }
   turnOffDirections(); // reset directions
+
   directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
-  directionsService.route({
+
+  var request = {
     origin: currentLocation,
-    // waypoints: wayPoints,
-    destination: autocompleteLocation,
+    waypoints: wayPoints,
+    destination: finalDestinationCoords,
     unitSystem: google.maps.UnitSystem.METRIC,
     travelMode: google.maps.TravelMode.DRIVING
-  }, function(response) {
+  }
+
+  directionsService.route(request, function(response) {
+    console.log(response);
+    // for (i = 0; i < response.routes[0].legs.length; i++) {
+    //   destinationDetails.push(response.routes[0].legs[i])
+    // }
     destinationDetails = response.routes[0].legs[0];
+    console.log(destinationDetails)
     directionsDisplay.setDirections(response);
     directionsDisplay.setMap(map);
     steps = destinationDetails.steps;
@@ -496,10 +541,10 @@ function getEstimatedDetails(wypts) {
     getEstimatedDetailsResponse = response;
   });
   // map.setZoom(20);
-  // map.setCenter(autocompleteLocation);
+  // map.setCenter(finalDestinationCoords);
 
   // Save recent destination in sessionStorage
-  var recentDesination = JSON.stringify({'name': autocompletePlaceName, 'coords': autocompleteLocation, 'address': address});
+  var recentDesination = JSON.stringify({'name': autocompletePlaceName, 'coords': finalDestinationCoords, 'address': address});
   sessionStorage.setItem(autocompletePlaceName, recentDesination);
   autocomplete = null;
 }
@@ -510,6 +555,9 @@ function turnOffDirections() {
 }
 
 function createPolyline(directionResult) {
+  if (isWaypoint == true) {
+    clearInterval(animatePath);
+  }
   line = null;
   line = new google.maps.Polyline({
       path: [],
@@ -553,8 +601,6 @@ function createPolyline(directionResult) {
   map.fitBounds(bounds);
   map.setZoom(18);
   animate(entirePath);
-  console.log(entirePath.length);
-  console.log(map.getZoom());
 };
 
 function animate(path) {
@@ -635,7 +681,6 @@ function animate(path) {
         currentLocation = path[i];
         infowindow.close();
         map.setCenter(path[i]);
-        console.log();
 
         var remainMinutes = (remainTime-remainTime*(i/path.length))/60;
         var remainHours = parseInt(remainMinutes/60);
@@ -720,7 +765,7 @@ function showTravelDetails() {
   // Get street view panorama
   var panorama = new google.maps.StreetViewPanorama(
     document.getElementById('destinationPanorama'), {
-      position: autocompleteLocation,
+      position: finalDestinationCoords,
       pov: {
         heading: 34,
         pitch: 10
@@ -730,7 +775,7 @@ function showTravelDetails() {
   map.setStreetView(panorama);
   //
   // $('#destinationRoutes').html("<img src='https://maps.googleapis.com/maps/api/streetview?size=500x500&location="
-  //               							+ autocompleteLocation
+  //               							+ finalDestinationCoords
   //               							+ "&heading=151.78&pitch=-0.76&key=AIzaSyBsYVLaGllEz-XZYoF6xv_wqPsrG0k7oFs"
   //               							+ "'>")
 }
@@ -853,7 +898,7 @@ $(document).ready(function() {
 
   $('#favoriteNameComplete').click(function() {
     var favoriteName = $('#favoriteName').val();
-    var favoriteObject = {'name': favoriteName, 'coords': autocompleteLocation, 'address': address};
+    var favoriteObject = {'name': favoriteName, 'coords': finalDestinationCoords, 'address': address};
 
     if (localStorage.getItem(favoriteName) === null) {
       localStorage.setItem(favoriteName, JSON.stringify(favoriteObject));
@@ -888,15 +933,18 @@ $(document).ready(function() {
   })
 
   $('#realDeparture').click(function() {
-    if ($('#realDeparture').html() == "닫기") {
+    if ($('#realDeparture').html() == "닫기" && isWaypoint == false) {
       // $('#navigationBottomBar').hide('fast');
       // $('#bottomBar').show('fast');
+      console.log("close clicked")
     } else {
+      console.log(getEstimatedDetailsResponse);
       closeRightBar();
       resizeMap();
       getEstimatedDetails();
       createPolyline(getEstimatedDetailsResponse);
       map.setZoom(20);
+      isWaypoint = false;
     }
     clearTimeout(triggerRealDeparture);
     navigationBottomBarToggle();
@@ -954,6 +1002,7 @@ $(document).ready(function() {
   })
 
   $('#addWaypoints').click(function() {
+    clearTimeout(triggerRealDeparture);
     isWaypoint = true;
     navigationBottomBarToggle();
     closeRightBar();
