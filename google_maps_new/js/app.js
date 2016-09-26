@@ -631,10 +631,10 @@ function animate(path) {
         $('#bottomBar').show('fast');
         initMap();
       } else {
+        marker.setPosition(path[i]);
         currentLocation = path[i];
         infowindow.close();
         map.setCenter(path[i]);
-        marker.setPosition(path[i]);
         console.log();
 
         var remainMinutes = (remainTime-remainTime*(i/path.length))/60;
