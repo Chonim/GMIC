@@ -24,6 +24,7 @@ if (!('webkitSpeechRecognition' in window)) {
 
   recognition.onspeechstart = function() {
     showInfo("Speech started!");
+    $('#pac-input').trigger("focus");
   }
 
   recognition.onnomatch = function() {
@@ -40,7 +41,6 @@ if (!('webkitSpeechRecognition' in window)) {
 
   recognition.onaudioend = function() {
     showInfo("Audio ended!!");
-    recognition.onstart();
   }
 
   recognition.onerror = function(event) {
@@ -91,17 +91,21 @@ if (!('webkitSpeechRecognition' in window)) {
         }
 
         $('#pac-input').val(final_transcript);
+
+        // Event when enter key pressed
         var e = $.Event( "keypress", { which: 13 } );
         $('#pac-input').trigger(e);
 
-
         console.log("final_transcript: '" + final_transcript + "'");
+
+        autoComplete();
+        getAutocompleteResult();
 
         // 문자 인식 부분
         if (final_transcript == "bye bye" || interim_transcript == " bye bye") {
-          startButton(event);
+
         } else if (final_transcript == "잘가" || final_transcript == " 잘가") {
-          startButton(event);
+
         }
 
       } else {

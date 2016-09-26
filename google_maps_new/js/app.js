@@ -37,6 +37,7 @@ var isWaypoint = false;
 var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 var countryRestrict = {'country': 'us'};
+var voicesIndex = 2;
 
 var date = new Date();
 
@@ -626,9 +627,9 @@ function animate(path) {
 
           function loadVoices() {
             voices = speechSynthesis.getVoices();
-            // console.log(voices);
+            console.log(voices[i].name);
 
-            msg.voice = voices[2];
+            msg.voice = voices[voicesIndex];
             msg.volume = 3;
 
             // Optional
@@ -1010,6 +1011,7 @@ $(document).ready(function() {
   })
 
   $('#microphone').click(function() {
+    // $("#WaitDialog").dialog("open");
     startButton(event);
   })
 })
