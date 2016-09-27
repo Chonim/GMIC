@@ -263,7 +263,7 @@ function getAutocompleteResult() {
         } else {
           // Add as a waypoint
           console.log("wayway!");
-          waypointCoords = place.geometry.location
+          waypointCoords = place.geometry.location;
           marker = new google.maps.Marker({
             map: map,
             icon: {
@@ -361,7 +361,6 @@ function deleteFavoriteItem(index) {
 function gasMap() {
   previousPage = "gasMap";
 
-
   $('#map').css('float', 'left');
   $('#map').css('width', '45%');
   $('#header-title').html('주유소');
@@ -416,7 +415,12 @@ function createMarker(place) {
   google.maps.event.addListener(marker, 'click', function() {
     autocompletePlaceName = place.name;
     address = place.vicinity;
-    finalDestinationCoords = place.geometry.location;
+    if (isWaypoint == true) {
+      waypointCoords = place.geometry.location;
+      console.log("설정설정")
+    } else {
+      finalDestinationCoords = place.geometry.location;
+    }
     infowindow.setContent("<p><b>"+ place.name + "</b></p>" +
                           "<p>" + place.vicinity + "<p>" +
                           "<p><button onclick='markerOnClick()'>목적지로 설정</button><p>");
@@ -476,7 +480,7 @@ function showGasStationsInfo() {
                        + distanceMatrixArray[i][1] + "</span>" // 시간
                        + "</div>";
     $('#gasInfoPanel').append(gasStationText);
-    console.log(gasStationTextArray[i][0] + gasStationTextArray[i][1] + gasStationLatlngArray[i] + distanceMatrixArray[i][0] + distanceMatrixArray[i][1]);
+    // console.log(gasStationTextArray[i][0] + gasStationTextArray[i][1] + gasStationLatlngArray[i] + distanceMatrixArray[i][0] + distanceMatrixArray[i][1]);
   }
 }
 
@@ -1029,7 +1033,7 @@ $(document).ready(function() {
       // $('#navigationBottomBar').hide('fast');
       // $('#bottomBar').show('fast');
       console.log("close clicked")
-    } else {
+    } else { // isWaypoint == true
       console.log(getEstimatedDetailsResponse);
       closeRightBar();
       resizeMap();
