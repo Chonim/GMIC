@@ -557,3 +557,43 @@ html, body {
 #loadingCloseBtn {
   display: none;
 }
+
+.option-modal-body {
+  height: 450px;
+}
+
+.option-modal-contents {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  background-color: #FFF;
+  display: block;
+  transition: 0.3s;
+  border-top: 1px solid #D2E0E4;
+}
+
+.modal-content-container {
+  height: 240px;
+}
+
+/*
+#favoriteListContents {
+  background-color: #FFF;
+  overflow-y: scroll;
+  height: 450px;
+}
+
+#favoriteListContents a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+  border-top: 1px solid #D2E0E4;
+}
+
+#favoriteListContents a:hover {
+    color: #f1f1f1;
+}*/

@@ -35,6 +35,10 @@ var getEstimatedDetailsResponse = [];
 var mapStyle;
 var isTrafficLayerOn = false;
 var mapTypeId = 'roadmap';
+var avoidHighways = false;
+var avoidTolls = false;
+var provideRouteAlternatives = true;
+
 var autocomplete = null;
 var isWaypoint = false;
 var autocompleteClicked = 0;
@@ -96,7 +100,7 @@ function initMap() {
       zoom: 19,
       mapTypeId: mapTypeId
     }
-  } else {
+  } else { // Styled map
     var mapOptions = {
       center: currentLocation,
       zoom: 19,
@@ -885,7 +889,7 @@ function reloadFavorites() {
                       <span class=""></span></button>
                       <ul class="dropdown-menu dropdown-menu-right">
                         <li><a href="#" onclick="showPlaceInfo(\'` + i + `\')">목적지로 설정</a></li>
-                        <li><a href="#" onclick="changeCurrentLocation(\'` + i + `\')">출발지로 설정</a></li>
+                        <li><a href="#" onclick="changeCurrentLocation(\'` + i + `\')">현재 위치로 설정</a></li>
                         <li><a href="#" onclick="deleteFavoriteItem(\'` + i + `\')">즐겨찾기 삭제</a></li>
                       </ul>
                     </div>`
@@ -898,6 +902,7 @@ function reloadFavorites() {
 $(document).ready(function() {
 
   initMap();
+  $("[name='my-checkbox']").bootstrapSwitch();
 
   $('#cancelBtn').hide();
   $('.gasMenu').hide();

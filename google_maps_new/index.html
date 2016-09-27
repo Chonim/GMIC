@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Google Maps Demo ver 2.0</title>
   <link rel="stylesheet"	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="style.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link rel="stylesheet" type="text/css" href="css/bootstrap-switch.min.css" />
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBsYVLaGllEz-XZYoF6xv_wqPsrG0k7oFs&libraries=places&signed_in=false"></script>
   <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&client=gme-sphinc&libraries=places&signed_in=false"></script> -->
   <script src="https://www.google.com/jsapi"></script>
+  <script src="js/bootstrap-switch.min.js" charset="utf-8"></script>
   <script src="js/app.js" charset="utf-8"></script>
   <script src="js/epolys.js" charset="utf-8"></script>
   <script src="js/voiceRecognition.js" charset="utf-8"></script>
@@ -225,17 +227,48 @@
             <button type="button" class="close" data-dismiss="modal">&times;</button>
             <h4 class="modal-title">설정</h4>
           </div>
-          <div class="modal-body">
-            <div class="col-sm-6">
-              설정
+          <div class="modal-body option-modal-body">
+            <div class="modal-content-container">
+              <div class="col-sm-12 option-modal-contents">
+                <div class="col-sm-10">
+                  맵 스타일 적용
+                </div>
+                <div class="col-sm-2">
+                  <input type="checkbox" id="isStyledMap" name="my-checkbox" checked>
+                </div>
+              </div>
+              <div class="col-sm-12 option-modal-contents">
+                <div class="col-sm-10">
+                  교통량 레이어 적용
+                </div>
+                <div class="col-sm-2">
+                  <input type="checkbox" id="isTrafficLayerOn" name="my-checkbox" checked>
+                </div>
+              </div>
+              <div class="col-sm-12 option-modal-contents">
+                <div class="col-sm-10">
+                  고속도로 제외
+                </div>
+                <div class="col-sm-2">
+                  <input type="checkbox" id="avoidHighways" name="my-checkbox" checked>
+                </div>
+              </div>
+              <div class="col-sm-12 option-modal-contents">
+                <div class="col-sm-10">
+                  톨게이트 제외
+                </div>
+                <div class="col-sm-2">
+                  <input type="checkbox" id="avoidTolls" name="my-checkbox" checked>
+                </div>
+              </div>
             </div>
-          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
     <!-- Show Mic image -->
     <div id="waitDialog" class="modal" role="dialog">
