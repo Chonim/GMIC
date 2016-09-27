@@ -881,8 +881,8 @@ function reloadFavorites() {
   }
   for(var i = 0; i < localStorage.length; i++) {
     var contents = `<div class="dropdown">
-                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">...
-                      <span class="caret"></span></button>
+                      <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">&#133;
+                      <span class=""></span></button>
                       <ul class="dropdown-menu dropdown-menu-right">
                         <li><a href="#" onclick="showPlaceInfo(\'` + i + `\')">목적지로 설정</a></li>
                         <li><a href="#" onclick="changeCurrentLocation(\'` + i + `\')">출발지로 설정</a></li>
