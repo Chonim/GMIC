@@ -32,7 +32,7 @@ var markersArray = [];
 var getEstimatedDetailsResponse = [];
 
 // 설정
-var mapStyle;
+var isStyledMap = true;
 var isTrafficLayerOn = false;
 var mapTypeId = 'roadmap';
 var avoidHighways = false;
@@ -94,7 +94,7 @@ function initMap() {
   $('#map').css('height', viewportHeight-40);
   $('#openNav > span').show();
   mapCanvasId = 'map'
-  if (mapStyle == "normal") {
+  if (isStyledMap == false) {
     var mapOptions = {
       center: currentLocation,
       zoom: 19,
@@ -135,7 +135,7 @@ function initMap() {
   markersArray.push(marker);
 
   map.addListener('maptypeid_changed', function() {
-    mapTypeId = map.getMapTypeId();
+    mapTypeId = map.getMapTypeId(); // roadmap, hybrid
   })
 
   // Traffic Layer 추가
@@ -409,15 +409,12 @@ function createMarker(place) {
     // icon: place.icon
   });
   markersArray.push(marker);
-  console.log(place.vicinity);
-  // console.log(place);
 
   google.maps.event.addListener(marker, 'click', function() {
     autocompletePlaceName = place.name;
     address = place.vicinity;
     if (isWaypoint == true) {
       waypointCoords = place.geometry.location;
-      console.log("설정설정")
     } else {
       finalDestinationCoords = place.geometry.location;
     }
@@ -446,8 +443,8 @@ function distanceMatrix() {
     destinations:  gasStationLatlngArray,
     travelMode: google.maps.TravelMode.DRIVING,
     unitSystem: google.maps.UnitSystem.METRIC,
-    avoidHighways: false,
-    avoidTolls: false
+    avoidHighways: avoidHighways,
+    avoidTolls: avoidHighways
   }, function(response, status) {
     if (status !== google.maps.DistanceMatrixStatus.OK) {
       alert('Error was: ' + status);
@@ -581,14 +578,12 @@ function getEstimatedDetails(wypts) {
     waypoints: wayPoints,
     destination: finalDestinationCoords,
     unitSystem: google.maps.UnitSystem.METRIC,
-    travelMode: google.maps.TravelMode.DRIVING
+    travelMode: google.maps.TravelMode.DRIVING,
+    avoidHighways: avoidHighways,
+    avoidTolls: avoidHighways
   }
 
   directionsService.route(request, function(response) {
-    console.log(response);
-    // for (i = 0; i < response.routes[0].legs.length; i++) {
-    //   destinationDetails.push(response.routes[0].legs[i])
-    // }
     destinationDetails = response.routes[0].legs[0];
     console.log(destinationDetails)
     directionsDisplay.setDirections(response);
@@ -596,8 +591,6 @@ function getEstimatedDetails(wypts) {
     $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
     getEstimatedDetailsResponse = response;
   });
-  // map.setZoom(20);
-  // map.setCenter(finalDestinationCoords);
 
   // Save recent destination in sessionStorage
   var recentDesination = JSON.stringify({'name': autocompletePlaceName, 'coords': finalDestinationCoords, 'address': address});
@@ -1109,4 +1102,26 @@ $(document).ready(function() {
     $("#waitDialog").trigger("click");
     startButton(event);
   })
+
+  $('.optionCloseBtn').click(function() {
+    initMap();
+  })
+
+  $('input[id="isTrafficLayerOnOption"]').on('switchChange.bootstrapSwitch', function(event, state) {
+    isTrafficLayerOn = state;
+  });
+
+  $('input[id="isStyledMap"]').on('switchChange.bootstrapSwitch', function(event, state) {
+    isStyledMap = state;
+  });
+
+  $('input[id="avoidHighways"]').on('switchChange.bootstrapSwitch', function(event, state) {
+    avoidHighways = state;
+    console.log(state);
+  });
+
+  $('input[id="avoidTolls"]').on('switchChange.bootstrapSwitch', function(event, state) {
+    avoidTolls = state;
+  });
+
 })
