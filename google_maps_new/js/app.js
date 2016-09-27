@@ -324,9 +324,9 @@ function getPlaceAddress() {
 // Show location of favorite item
 function showPlaceInfo(index) {
   previousPage = "favorite";
-  $('.favoriteListCloseBtn').trigger("click");
   var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
 
+  $('.favoriteListCloseBtn').trigger("click");
   autocompletePlaceName = localStorageItem.name;
   address = localStorageItem.address;
   if (isWaypoint == false) {
@@ -336,6 +336,21 @@ function showPlaceInfo(index) {
   }
 
   getAutocompleteResult();
+}
+
+function changeCurrentLocation(index) {
+  var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
+  currentLocation = {lat: localStorageItem.coords.lat, lng: localStorageItem.coords.lng}
+  initMap();
+}
+
+function deleteFavoriteItem(index) {
+  var localStorageItemName = JSON.parse(localStorage.getItem(localStorage.key(index))).name;
+  if (confirm(localStorageItemName + "을 삭제하시겠습니까?")) {
+    localStorage.removeItem(localStorage.key(index));
+    alert(localStorageItemName + "가 삭제 되었습니다.");
+    reloadFavorites();
+  }
 }
 
 //////////////////////////////////////////////////////// MAP ////////////////////////////////////////////////////////////////////
@@ -732,7 +747,7 @@ function animate(path) {
           $('#estimatedDistance').html(parseInt(remainDistance-remainDistance*(i/path.length)) + " m");
         }
       }
-  }, 100); // default: 200
+  }, 100); // default: 100
 };
 
 function showTravelDetails() {
@@ -860,6 +875,26 @@ function loadingImage() {
   }, 2000);
 }
 
+function reloadFavorites() {
+  if ($('#favoriteListContents > a').html() !== null) {
+    $('.favoriteListContentsItem').remove();
+  }
+  for(var i = 0; i < localStorage.length; i++) {
+    var contents = `<div class="dropdown">
+                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">...
+                      <span class="caret"></span></button>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" onclick="showPlaceInfo(\'` + i + `\')">목적지로 설정</a></li>
+                        <li><a href="#" onclick="changeCurrentLocation(\'` + i + `\')">출발지로 설정</a></li>
+                        <li><a href="#" onclick="deleteFavoriteItem(\'` + i + `\')">즐겨찾기 삭제</a></li>
+                      </ul>
+                    </div>`
+    $('#favoriteListContents').append('<div class="col-sm-12 favoriteListContentsItem"><div class="col-sm-10"><a href="#" class="" onclick="showPlaceInfo(\'' + i + '\')">&#9733; '
+                                      + localStorage.key(i) + '</a></div>'
+                                      + '<div class="col-sm-2">' + contents + '</div></div>');
+  }
+}
+
 $(document).ready(function() {
 
   initMap();
@@ -873,12 +908,7 @@ $(document).ready(function() {
   $('#header-title').html("");
 
   $('.openFavoriteList').click(function() {
-    if ($('#favoriteListContents > a').html() !== null) {
-      $('.favoriteListContentsItem').remove();
-    }
-    for(var i = 0; i < localStorage.length; i++) {
-      $('#favoriteListContents').append('<a href="#" class="favoriteListContentsItem" onclick="showPlaceInfo(\'' + i + '\')">&#9733; ' + localStorage.key(i) + '</a>');
-    }
+    reloadFavorites();
   })
 
   $('.favoriteListContentsItem').click(function() {
