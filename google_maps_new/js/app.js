@@ -443,6 +443,7 @@ function distanceMatrix() {
     destinations:  gasStationLatlngArray,
     travelMode: google.maps.TravelMode.DRIVING,
     unitSystem: google.maps.UnitSystem.METRIC,
+    provideRouteAlternatives: true,
     avoidHighways: avoidHighways,
     avoidTolls: avoidHighways
   }, function(response, status) {
@@ -579,6 +580,7 @@ function getEstimatedDetails(wypts) {
     destination: finalDestinationCoords,
     unitSystem: google.maps.UnitSystem.METRIC,
     travelMode: google.maps.TravelMode.DRIVING,
+    provideRouteAlternatives: true,
     avoidHighways: avoidHighways,
     avoidTolls: avoidHighways
   }
@@ -908,6 +910,18 @@ $(document).ready(function() {
   $('#navigationBottomBar').hide();
   $('#header').hide();
   $('#header-title').html("");
+
+  window.speechSynthesis.onvoiceschanged = function(e) {
+    var voices = speechSynthesis.getVoices();
+
+    // Loop through each of the voices.
+    voices.forEach(function(voice, i) {
+      // console.log(voices[i].name);
+
+      // Add the option to the voice selector.
+      $('#voice').append("<option style='width:30px'>" + voices[i].name + "</option>");
+    });
+  };
 
   $('.openFavoriteList').click(function() {
     reloadFavorites();

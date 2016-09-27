@@ -577,23 +577,13 @@ html, body {
   height: 240px;
 }
 
-/*
-#favoriteListContents {
-  background-color: #FFF;
-  overflow-y: scroll;
-  height: 450px;
+select {
+  width: 30px;
+
 }
 
-#favoriteListContents a {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: block;
-  transition: 0.3s;
-  border-top: 1px solid #D2E0E4;
+select option {
+    overflow-y: scroll;
+    font-size: 1px;
+    width: 30px;
 }
-
-#favoriteListContents a:hover {
-    color: #f1f1f1;
-}*/
