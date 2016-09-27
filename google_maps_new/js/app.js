@@ -518,6 +518,10 @@ function getEstimatedDetails(wypts) {
   }
   turnOffDirections(); // reset directions
 
+  if (directionsDisplay !== null) {
+    directionsDisplay.setMap(null);
+  }
+
   directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer;
 
@@ -538,7 +542,6 @@ function getEstimatedDetails(wypts) {
     console.log(destinationDetails)
     directionsDisplay.setDirections(response);
     directionsDisplay.setMap(map);
-    steps = destinationDetails.steps;
     $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
     getEstimatedDetailsResponse = response;
   });
@@ -552,8 +555,8 @@ function getEstimatedDetails(wypts) {
 }
 
 function turnOffDirections() {
-  directionsService = null;
   directionsDisplay = null;
+  directionsService = null;
 }
 
 function createPolyline(directionResult) {
@@ -608,7 +611,7 @@ function createPolyline(directionResult) {
 function animate(path) {
     var i = 0;
     var leg = 0;
-    console.log(map.getZoom());
+    console.log(steps);
     $('#header').show();
     animatePath = setInterval(function() {
       // if (i = 0) {
@@ -689,23 +692,7 @@ function animate(path) {
         var remainDays = parseInt(remainMinutes/60/24);
 
         // Calculate and display remain time
-        if (remainMinutes >= 60*24) {
-          if (remainDays > 0) {
-            $('#estimatedTime').html(remainDays + " 일 " + remainHours%24 + " 시간")
-          } else if (remainHours > 0) {
-            $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
-          } else {
-            $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
-          }
-        } else if (remainMinutes >= 60) {
-          if (remainHours < 1) {
-            $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
-          } else {
-            $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
-          }
-        } else if (remainMinutes >= 0) {
-          $('#estimatedTime').html(parseInt(remainMinutes) + " 분");
-        }
+        calculateRemainDuration(remainMinutes, remainHours, remainDays)
 
         // Calculate and display remain distance
         if (parseInt((remainDistance-remainDistance*(i/path.length))/1000) >= 1) {
@@ -728,22 +715,17 @@ function showTravelDetails() {
   var estimatedMinutes = parseInt(estimatedTime/60);
   var durationText = 0;
   var totalDistance = 0;
-
   var originalRoutes = getEstimatedDetailsResponse.routes[0];
-  console.log(originalRoutes);
-  var steps = [];
   var originalLegs = originalRoutes.legs;
+  steps = [];
+
   for (i=0;i<originalLegs.length;i++) {
     totalDistance += originalRoutes.legs[i].distance.value;
     durationText += originalRoutes.legs[i].duration.value;
     // destinationDetails.push(originalLegs);
     var originalSteps = originalRoutes.legs[i].steps;
     for (j=0;j<originalSteps.length;j++) {
-      steps.push(originalSteps);
-      // var nextSegment = steps[j].path;
-      // for (k=0;k<nextSegment.length;k++) {
-      //   entirePath.push(nextSegment[k]);
-      // }
+      steps.push(originalSteps[j]);
     }
   }
 
@@ -761,23 +743,7 @@ function showTravelDetails() {
   var remainHours = parseInt(remainMinutes/60);
   var remainDays = parseInt(remainMinutes/60/24);
 
-  if (remainMinutes >= 60*24) {
-    if (remainDays > 0) {
-      $('#estimatedTime').html(remainDays + " 일 " + remainHours%24 + " 시간")
-    } else if (remainHours > 0) {
-      $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
-    } else {
-      $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
-    }
-  } else if (remainMinutes >= 60) {
-    if (remainHours < 1) {
-      $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
-    } else {
-      $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
-    }
-  } else if (remainMinutes >= 0) {
-    $('#estimatedTime').html(parseInt(remainMinutes) + " 분");
-  }
+  calculateRemainDuration(remainMinutes, remainHours, remainDays);
 
   arrivalMinutes = estimatedMinutes + currentMinutes;
   arrivalHours = estimatedHours + currentHours;
@@ -811,6 +777,26 @@ function showTravelDetails() {
   //               							+ finalDestinationCoords
   //               							+ "&heading=151.78&pitch=-0.76&key=AIzaSyBsYVLaGllEz-XZYoF6xv_wqPsrG0k7oFs"
   //               							+ "'>")
+}
+
+function calculateRemainDuration(remainMinutes, remainHours, remainDays) {
+  if (remainMinutes >= 60*24) {
+    if (remainDays > 0) {
+      $('#estimatedTime').html(remainDays + " 일 " + remainHours%24 + " 시간")
+    } else if (remainHours > 0) {
+      $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
+    } else {
+      $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
+    }
+  } else if (remainMinutes >= 60) {
+    if (remainHours < 1) {
+      $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
+    } else {
+      $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
+    }
+  } else if (remainMinutes >= 0) {
+    $('#estimatedTime').html(parseInt(remainMinutes) + " 분");
+  }
 }
 
 function getPlaceDetails() {
