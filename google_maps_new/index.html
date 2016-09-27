@@ -39,7 +39,7 @@
         <div id="menuList">
           <div class="input-wrapper">
             <input type="text" id="pac-input" placeholder="검색" />
-            <img id="microphone" src="image/microphone.png">
+            <img id="microphone" src="image/microphone.png" data-toggle="modal" data-target="#waitDialog">
             <span id="cancelBtn">취소</span>
           </div>
           <a href="#" class="menuDefault menuListItem home-office" data-toggle="modal" data-target="#myModal" data-direction='bottom'>
@@ -171,7 +171,7 @@
       </div>
     </div>
 
-    <!-- Favorite ask Modal -->
+    <!-- Close ask Modal -->
     <div id="closeAskModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
@@ -236,11 +236,25 @@
       </div>
     </div>
 
-    <!-- Show wait image -->
-    <div id="WaitDialog" class="hidden" style="text-align: center">
-      <img src="images/voice-listen.gif" />
-      <div style="margin-top: 10px; color: white">
-          <b>Please wait</b>
+    <!-- Show Mic image -->
+    <div id="waitDialog" class="modal" role="dialog">
+      <div class="modal-dialog">
+        <!-- GIF Image -->
+        <div class="modal-body">
+          <img src="image/voice-listen.gif" />
+        </div>
+        <button id="waitCloseBtn" type="button" class="btn btn-default" data-dismiss="modal"></button>
+      </div>
+    </div>
+
+    <!-- Show Loading image -->
+    <div id="loadingDialog" class="modal" role="dialog">
+      <div class="modal-dialog">
+        <!-- GIF Image -->
+        <div class="modal-body">
+          <img src="image/loading.gif" />
+        </div>
+        <button id="loadingCloseBtn" type="button" class="btn btn-default" data-dismiss="modal"></button>
       </div>
     </div>
 

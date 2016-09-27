@@ -63,7 +63,11 @@ if (!('webkitSpeechRecognition' in window)) {
   };
 
   recognition.onend = function() {
-    console.log("ended...");
+    console.log("ended...!!!");
+    // Close image
+    setTimeout(function() {
+      $('#waitDialog').modal("hide");
+    }, 2000);
     recognizing = false;
     if (ignore_onend) {
       return;
@@ -76,6 +80,7 @@ if (!('webkitSpeechRecognition' in window)) {
       var range = document.createRange();
       window.getSelection().addRange(range);
     }
+
   };
 
   recognition.onresult = function(event) {

@@ -476,6 +476,7 @@ function closeNav() {
 // Sidebar end
 
 function openRightBar() {
+  loadingImage();
   $('#map').css('width', '35%');
   $('#rightBar').css('width', '65%');
   $('#realDeparture').html("출발");
@@ -627,7 +628,7 @@ function animate(path) {
 
           function loadVoices() {
             voices = speechSynthesis.getVoices();
-            console.log(voices[i].name);
+            // console.log(voices[i].name);
 
             msg.voice = voices[voicesIndex];
             msg.volume = 3;
@@ -802,6 +803,13 @@ function resizeMap() {
     google.maps.event.trigger(map, "resize");
     map.setCenter(currentLocation);
   }, 500);
+}
+
+function loadingImage() {
+  $('#loadingDialog').modal('show');
+  setTimeout(function() {
+    $('#loadingDialog').modal('hide');
+  }, 2000);
 }
 
 $(document).ready(function() {
@@ -1011,7 +1019,7 @@ $(document).ready(function() {
   })
 
   $('#microphone').click(function() {
-    // $("#WaitDialog").dialog("open");
+    $("#waitDialog").trigger("click");
     startButton(event);
   })
 })
