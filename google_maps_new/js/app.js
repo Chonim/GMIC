@@ -31,6 +31,9 @@ var distanceMatrixArray = [];
 var markersArray = [];
 var getEstimatedDetailsResponse = [];
 
+// 설정
+var mapStyle;
+var isTrafficLayerOn = false;
 var mapTypeId = 'roadmap';
 var autocomplete = null;
 var isWaypoint = false;
@@ -38,6 +41,20 @@ var autocompleteClicked = 0;
 var currentLocation = {lat: 37.7749295, lng: -122.4194155};
 var countryRestrict = {'country': 'us'};
 var voicesIndex = 2;
+
+// For car shaped marker
+var car = "M17.402,0H5.643C2.526,0,0,3.467,0,6.584v34.804c0,3.116,2.526,5.644,5.643,5.644h11.759c3.116,0,5.644-2.527,5.644-5.644 V6.584C23.044,3.467,20.518,0,17.402,0z M22.057,14.188v11.665l-2.729,0.351v-4.806L22.057,14.188z M20.625,10.773 c-1.016,3.9-2.219,8.51-2.219,8.51H4.638l-2.222-8.51C2.417,10.773,11.3,7.755,20.625,10.773z M3.748,21.713v4.492l-2.73-0.349 V14.502L3.748,21.713z M1.018,37.938V27.579l2.73,0.343v8.196L1.018,37.938z M2.575,40.882l2.218-3.336h13.771l2.219,3.336H2.575z M19.328,35.805v-7.872l2.729-0.355v10.048L19.328,35.805z";
+var icon = {
+  path: car,
+  scale: .7,
+  strokeColor: 'white',
+  strokeWeight: .10,
+  fillOpacity: 1,
+  fillColor: '#404040',
+  offset: '5%',
+  // rotation: parseInt(heading[i]),
+  anchor: new google.maps.Point(10, 25) // orig 10,50 back of car, 10,0 front of car, 10,25 center of car
+};
 
 var date = new Date();
 
@@ -73,11 +90,19 @@ function initMap() {
   $('#map').css('height', viewportHeight-40);
   $('#openNav > span').show();
   mapCanvasId = 'map'
-  var mapOptions = {
-    center: currentLocation,
-    zoom: 19,
-    styles: styleArray,
-    mapTypeId: mapTypeId
+  if (mapStyle == "normal") {
+    var mapOptions = {
+      center: currentLocation,
+      zoom: 19,
+      mapTypeId: mapTypeId
+    }
+  } else {
+    var mapOptions = {
+      center: currentLocation,
+      zoom: 19,
+      styles: styleArray,
+      mapTypeId: mapTypeId
+    }
   }
 
   map = new google.maps.Map(document.getElementById(mapCanvasId),
@@ -91,7 +116,8 @@ function initMap() {
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       strokeColor: "#73C3D6",
-      scale: 8
+      scale: 8,
+      zIndex: Math.round(currentLocation[0] * -100000) << 5
     },
     position: currentLocation
     // anchorPoint: new google.maps.Point(0, -29)
@@ -109,8 +135,10 @@ function initMap() {
   })
 
   // Traffic Layer 추가
-  // var trafficLayer = new google.maps.TrafficLayer();
-  // trafficLayer.setMap(map);
+  if (isTrafficLayerOn == true) {
+    var trafficLayer = new google.maps.TrafficLayer();
+    trafficLayer.setMap(map);
+  }
 
   // 밤낮 에이어 추가
   // new DayNightOverlay({
@@ -683,9 +711,12 @@ function animate(path) {
         initMap();
       } else {
         marker.setPosition(path[i]);
+        var heading = google.maps.geometry.spherical.computeHeading(path[i-1], path[i]);
+        icon.rotation = heading;
+        marker.setIcon(icon);
         currentLocation = path[i];
         infowindow.close();
-        map.setCenter(path[i]);
+        map.panTo(path[i]);
 
         var remainMinutes = (remainTime-remainTime*(i/path.length))/60;
         var remainHours = parseInt(remainMinutes/60);
@@ -701,7 +732,7 @@ function animate(path) {
           $('#estimatedDistance').html(parseInt(remainDistance-remainDistance*(i/path.length)) + " m");
         }
       }
-  }, 200); // default: 200
+  }, 100); // default: 200
 };
 
 function showTravelDetails() {
