@@ -438,6 +438,7 @@ html, body {
 .navigationBottomBarTitle {
   height: 50px;
   background-color: #FFF;
+  overflow-y: hidden;
   z-index: 999;
 }
 
@@ -452,6 +453,7 @@ html, body {
 }
 
 #estimatedTime, #estimatedDistance {
+
 }
 
 .showTime {

@@ -726,12 +726,12 @@ function showTravelDetails() {
   var estimatedTime = destinationDetails.duration.value;
   var estimatedHours = estimatedTime/3600;
   var estimatedMinutes = parseInt(estimatedTime/60);
-  var durationText = '';
+  var durationText = 0;
   var totalDistance = 0;
 
   var originalRoutes = getEstimatedDetailsResponse.routes[0];
   console.log(originalRoutes);
-  steps = [];
+  var steps = [];
   var originalLegs = originalRoutes.legs;
   for (i=0;i<originalLegs.length;i++) {
     totalDistance += originalRoutes.legs[i].distance.value;
