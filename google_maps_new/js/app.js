@@ -1142,6 +1142,9 @@ $(document).ready(function() {
 
   $('.optionCloseBtn').click(function() {
     initMap();
+    $('#map').css('width', '100%');
+    $('#map').css('float', 'right');
+    resizeMap();
   })
 
   $('input[id="isTrafficLayerOnOption"]').on('switchChange.bootstrapSwitch', function(event, state) {
@@ -1162,10 +1165,18 @@ $(document).ready(function() {
   });
 
   $('.home-office').click(function() {
+    var toWhere = '';
     if ($(this).attr("id") == "toHome") {
-      showHomeOrWork("home")
+      toWhere = "home";
     } else {  // to work
-      showHomeOrWork("work")
+      toWhere = "work";
+    }
+    toShowHomeOrWork(toWhere)
+
+    function toShowHomeOrWork(toWhere) {
+      if (confirm(toWhere + "으로 길안내를 시작합니다?")) {
+        showHomeOrWork(toWhere)
+      }
     }
   })
 })
