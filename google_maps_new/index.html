@@ -45,7 +45,7 @@
             <img id="microphone" src="image/microphone.png" data-toggle="modal" data-target="#waitDialog">
             <span id="cancelBtn">취소</span>
           </div>
-          <a href="#" class="menuDefault menuListItem home-office" data-toggle="modal" data-target="#myModal" data-direction='bottom'>
+          <a href="#" id="toHome" class="menuDefault menuListItem home-office" data-toggle="modal" data-target="#myModal" data-direction='bottom'>
             <div>
               <span class="col-sm-1"><img src="image/home.png" /></span>
               <span width="col-sm-10">
@@ -54,7 +54,7 @@
               <span width="10%">></span>
             </div>
           </a>
-          <a href="#" class="menuDefault menuListItem home-office" data-toggle="modal" data-target="#myModal">
+          <a href="#" id="toWork" class="menuDefault menuListItem home-office" data-toggle="modal" data-target="#myModal">
             <div>
               <span class="col-sm-1"><img src="image/connections.png" /></span>
               <span width="col-sm-10">
@@ -131,27 +131,6 @@
       </div>
     </div>
 
-    <!-- Home and work Modal -->
-    <div id="myModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">집 & 직장</h4>
-          </div>
-          <div class="modal-body">
-            <p>Some text in the modal.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default close-home-office" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
     <!-- Favorite ask Modal -->
     <div id="favoriteAskModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -163,7 +142,7 @@
             <h3 class="modal-title">즐겨찾기 이름</h4>
           </div>
           <div class="modal-body">
-            <div class="col-sm-12"><input type="text" id="favoriteName" /></div>
+            <div class="col-sm-12"><input type="text" id="favoriteName" placeholder="home이나 work으로 등록하면 집이나 직장 위치로 설정됩니다." /></div>
           </div>
           <div class="modal-footer">
             <div class="col-sm-6"><button type="button" class="btn btn-default btn-block" data-dismiss="modal">취소</button></div>

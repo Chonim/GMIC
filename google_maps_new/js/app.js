@@ -342,6 +342,34 @@ function showPlaceInfo(index) {
   getAutocompleteResult();
 }
 
+function showHomeOrWork(where) {
+  previousPage = "mainMenu";
+  var alertPlace = "";
+  if (where == "home") {
+    var localStorageItem = JSON.parse(localStorage.getItem(where));
+    alertPlace = "집";
+  } else {
+    var localStorageItem = JSON.parse(localStorage.getItem(where));
+    alertPlace = "직장";
+  }
+
+  if (localStorageItem !== null) {
+    closeNav();
+    autocompletePlaceName = localStorageItem.name;
+    address = localStorageItem.address;
+    if (isWaypoint == false) {
+      finalDestinationCoords = localStorageItem.coords;
+    } else {
+      waypointCoords = localStorageItem.coords;
+    }
+
+    getAutocompleteResult();
+  } else {
+    alert(alertPlace + "의 위치가 설정되어 있지 않습니다.")
+  }
+
+}
+
 function changeCurrentLocation(index) {
   var localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(index)));
   currentLocation = {lat: localStorageItem.coords.lat, lng: localStorageItem.coords.lng}
@@ -443,7 +471,6 @@ function distanceMatrix() {
     destinations:  gasStationLatlngArray,
     travelMode: google.maps.TravelMode.DRIVING,
     unitSystem: google.maps.UnitSystem.METRIC,
-    provideRouteAlternatives: true,
     avoidHighways: avoidHighways,
     avoidTolls: avoidHighways
   }, function(response, status) {
@@ -884,17 +911,17 @@ function reloadFavorites() {
   }
   for(var i = 0; i < localStorage.length; i++) {
     var contents = `<div class="dropdown">
-                      <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">&#133;
-                      <span class=""></span></button>
-                      <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a href="#" onclick="showPlaceInfo(\'` + i + `\')">목적지로 설정</a></li>
-                        <li><a href="#" onclick="changeCurrentLocation(\'` + i + `\')">현재 위치로 설정</a></li>
-                        <li><a href="#" onclick="deleteFavoriteItem(\'` + i + `\')">즐겨찾기 삭제</a></li>
-                      </ul>
-                    </div>`
+    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">&#133;
+    <span class=""></span></button>
+    <ul class="dropdown-menu dropdown-menu-right">
+    <li><a href="#" onclick="showPlaceInfo(\'` + i + `\')">목적지로 설정</a></li>
+    <li><a href="#" onclick="changeCurrentLocation(\'` + i + `\')">현재 위치로 설정</a></li>
+    <li><a href="#" onclick="deleteFavoriteItem(\'` + i + `\')">즐겨찾기 삭제</a></li>
+    </ul>
+    </div>`
     $('#favoriteListContents').append('<div class="col-sm-12 favoriteListContentsItem"><div class="col-sm-10"><a href="#" class="" onclick="showPlaceInfo(\'' + i + '\')">&#9733; '
-                                      + localStorage.key(i) + '</a></div>'
-                                      + '<div class="col-sm-2">' + contents + '</div></div>');
+    + localStorage.key(i) + '</a></div>'
+    + '<div class="col-sm-2">' + contents + '</div></div>');
   }
 }
 
@@ -1068,11 +1095,6 @@ $(document).ready(function() {
     console.log(this);
   })
 
-  $('.home-office').click(function() {
-    // $('#header').show('fast');
-    $('#header-title').html('집 & 직장');
-  })
-
   $('#navagationClose').click(function() {
     clearInterval(animatePath);
     closeRightBar();
@@ -1138,4 +1160,11 @@ $(document).ready(function() {
     avoidTolls = state;
   });
 
+  $('.home-office').click(function() {
+    if ($(this).attr("id") == "toHome") {
+      showHomeOrWork("home")
+    } else {  // to work
+      showHomeOrWork("work")
+    }
+  })
 })
