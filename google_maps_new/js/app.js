@@ -365,7 +365,7 @@ function showHomeOrWork(where) {
 
     getAutocompleteResult();
   } else {
-    alert(alertPlace + "의 위치가 설정되어 있지 않습니다.")
+    alert(alertPlace + "의 위치가 설정되어 있지 않습니다. 즐겨찾기에 " + where +"을 등록해 주세요.")
   }
 
 }
