@@ -64,11 +64,9 @@ if (!('webkitSpeechRecognition' in window)) {
 
   recognition.onend = function() {
     console.log("ended...!!!");
+    // $('#pac-input').val(final_transcript);
     // Close image
-    setTimeout(function() {
-      $('#waitDialog').modal("hide");
-    }, 2000);
-    recognizing = false;
+
     if (ignore_onend) {
       return;
     }
@@ -95,16 +93,19 @@ if (!('webkitSpeechRecognition' in window)) {
           final_transcript = final_transcript.substring(1, final_transcript.length);
         }
 
+        console.log("result");
         $('#pac-input').val(final_transcript);
-
-        // Event when enter key pressed
-        var e = $.Event( "keypress", { which: 13 } );
-        $('#pac-input').trigger(e);
+        $('#waitDialog').modal("hide");
+        codeAddress(final_transcript);
+        // setTimeout(function() {
+        // }, 2000);
+        recognition.stop();
+        recognizing = false;
 
         console.log("final_transcript: '" + final_transcript + "'");
 
-        autoComplete();
-        getAutocompleteResult();
+        // autoComplete();
+        // getAutocompleteResult();
 
         // 문자 인식 부분
         if (final_transcript == "bye bye" || interim_transcript == " bye bye") {
@@ -144,8 +145,8 @@ function startButton(event) {
     return;
   }
   final_transcript = '';
-  // recognition.lang = 'en-US';
-  recognition.lang = 'ko-KR';
+  recognition.lang = 'en-US';
+  // recognition.lang = 'ko-KR';
 
   console.log(recognition.lang);
   recognition.start();

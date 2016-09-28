@@ -317,6 +317,7 @@ html, body {
   text-align: center;
   font-size: 25px;
   color: #828282;
+  overflow-x: hidden;
 }
 
 #autocompletePlaceDistance {

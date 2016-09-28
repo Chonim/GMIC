@@ -21,6 +21,7 @@ var triggerRealDeparture;
 var remainDistance;
 var remainTime;
 var waypointCoords;
+var geocoder;
 
 var steps = [];
 var destinationDetails = [];
@@ -213,6 +214,7 @@ function addYourLocationButton(map, marker) {
 function autoComplete() {
   input = /** @type {!HTMLInputElement} */(
             document.getElementById('pac-input'));
+
   // Autocomplete
   autocomplete = new google.maps.places.Autocomplete(input, {
     componentRestrictions: countryRestrict
@@ -243,7 +245,7 @@ function getAutocompleteResult() {
       //do something special
       infowindow.close();
       marker.setVisible(true);
-      if (autocomplete !== null) {
+      if (autocomplete !== null && final_transcript == null) {
         place = autocomplete.getPlace();
         console.log(place);
         getPlaceAddress();
@@ -310,6 +312,7 @@ function getAutocompleteResult() {
       }
 
       autocomplete = null;
+      final_transcript = null;
 
     }, 800);
 }
@@ -323,6 +326,35 @@ function getPlaceAddress() {
       (place.address_components[2] && place.address_components[2].short_name || '')
     ].join(' ');
   }
+}
+
+// Geocoding for voiceRecognition
+function codeAddress(address) {
+  geocoder = new google.maps.Geocoder();
+
+  // var address = $('#pac-input');
+  geocoder.geocode( { 'address': address}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      console.log(results[0]);
+
+      // Parse place address
+      place = results[0];
+      getPlaceAddress();
+
+      // Place Name
+      autocompletePlaceName = place.formatted_address;
+      // address = localStorageItem.address;
+      if (isWaypoint == false) {
+        finalDestinationCoords = results[0].geometry.location;
+      } else {
+        waypointCoords = results[0].geometry.location;
+      }
+      getAutocompleteResult();
+    } else {
+      console.log("Geocode was not successful for the following reason: " + status);
+    }
+  });
+
 }
 
 // Show location of favorite item
@@ -544,7 +576,7 @@ function closeNav() {
   }
   $('#mySidenav').css('width', '0%');
   $('#bottomBar').css('width', '100%');
-  if ($('#mySidenav').width() == 864) {
+  if ($('#mySidenav').width() == 864 || $('#map').width() == 96) {
     $('#map').css('width', '100%');
   }
   $('#menuList').hide("slow");
@@ -564,6 +596,7 @@ function closeRightBar() {
   $('#map').css('width', '100%');
   $('#map').css('float', 'right');
   resizeMap();
+  autocompleteClicked = 0;
 }
 
 function inputFocusOrGoToAutocomplete() {
@@ -687,14 +720,13 @@ function animate(path) {
     console.log(steps);
     $('#header').show();
     animatePath = setInterval(function() {
-      // if (i = 0) {
-      //   map.setZoom(17);
-      // }
+      // Set zoom after start
+      if (i == 1) {
+        map.setZoom(17);
+      }
       if (path[i].toString() == steps[leg].path[0].toString()) {
+        map.setZoom(17);
         // Change zoom when there is an instruction
-        if (map.getZoom() !== 17) {
-          map.setZoom(17);
-        }
         if (leg < steps.length) {
           $('#header-title').html(steps[leg].instructions);
 
@@ -858,20 +890,20 @@ function showTravelDetails() {
 function calculateRemainDuration(remainMinutes, remainHours, remainDays) {
   if (remainMinutes >= 60*24) {
     if (remainDays > 0) {
-      $('#estimatedTime').html(remainDays + " 일 " + remainHours%24 + " 시간")
+      $('#estimatedTime').html(remainDays + "일 " + remainHours%24 + "시간")
     } else if (remainHours > 0) {
-      $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
+      $('#estimatedTime').html(remainHours + "시간 " + parseInt(remainMinutes%60) + "분");
     } else {
-      $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
+      $('#estimatedTime').html(parseInt(remainMinutes%60) + "분");
     }
   } else if (remainMinutes >= 60) {
     if (remainHours < 1) {
-      $('#estimatedTime').html(parseInt(remainMinutes%60) + " 분");
+      $('#estimatedTime').html(parseInt(remainMinutes%60) + "분");
     } else {
-      $('#estimatedTime').html(remainHours + " 시간 " + parseInt(remainMinutes%60) + " 분");
+      $('#estimatedTime').html(remainHours + "시간 " + parseInt(remainMinutes%60) + "분");
     }
   } else if (remainMinutes >= 0) {
-    $('#estimatedTime').html(parseInt(remainMinutes) + " 분");
+    $('#estimatedTime').html(parseInt(remainMinutes) + "분");
   }
 }
 
@@ -1019,7 +1051,7 @@ $(document).ready(function() {
     $('#bottomBar').show();
     $('#navigationBottomBar').hide();
     $('#goToAutocomplete').hide();
-    autocompleteClicked = 1;
+    autocompleteClicked = 0;
   });
 
   $('#OpenFavoriteAskModal').click(function() {
@@ -1049,10 +1081,24 @@ $(document).ready(function() {
     triggerRealDeparture = setTimeout(function() {
       $('#realDeparture').trigger("click");
     }, 10000);
+
+    // // Set timer to check if user is idle
+    // var idleTimer;
+    // // clear prior timeout, if any
+    // $('body').hover(function(){
+    //   console.log("dddd")
+    //   window.clearTimeout(idleTimer);
+    //
+    //   // create new timeout (3 mins)
+    //   idleTimer = window.setTimeout(isIdle, 3000);
+    // })
+    //
+    // function isIdle() {
+    //   $('#realDeparture').trigger("click");
+    // }
   })
 
   $('.navigationBottomBarTitle').click(function() {
-    clearTimeout(animatePath);
     navigationBottomBarToggle();
     if ($('.navigationBottomBarBody').height() < 60) {
       // $('.navigationBottomBarBody').css('height','680px');
@@ -1076,6 +1122,7 @@ $(document).ready(function() {
       createPolyline(getEstimatedDetailsResponse);
       map.setZoom(20);
       isWaypoint = false;
+
     }
     clearTimeout(triggerRealDeparture);
     navigationBottomBarToggle();
@@ -1085,6 +1132,7 @@ $(document).ready(function() {
   $('#pac-input').keypress(function(e) {
     if (e.which == 13) {
       // When enter pressed
+      codeAddress($('#pac-input').val())
     }
   })
 
@@ -1142,9 +1190,6 @@ $(document).ready(function() {
 
   $('.optionCloseBtn').click(function() {
     initMap();
-    $('#map').css('width', '100%');
-    $('#map').css('float', 'right');
-    resizeMap();
   })
 
   $('input[id="isTrafficLayerOnOption"]').on('switchChange.bootstrapSwitch', function(event, state) {
@@ -1179,4 +1224,6 @@ $(document).ready(function() {
       }
     }
   })
+
+
 })
