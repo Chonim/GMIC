@@ -1052,6 +1052,7 @@ $(document).ready(function() {
   })
 
   $('.navigationBottomBarTitle').click(function() {
+    clearTimeout(animatePath);
     navigationBottomBarToggle();
     if ($('.navigationBottomBarBody').height() < 60) {
       // $('.navigationBottomBarBody').css('height','680px');
