@@ -925,22 +925,6 @@ function calculateRemainDuration(remainMinutes, remainHours, remainDays) {
   }
 }
 
-function getPlaceDetails() {
-  var request = {
-    placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
-  };
-
-  service = new google.maps.places.PlacesService(map);
-  service.getDetails(request, callback);
-
-  function callback(place, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      createMarker(place);
-      console.log(place)
-    }
-  }
-}
-
 function resizeMap() {
   window.setTimeout(function() {
     google.maps.event.trigger(map, "resize");
