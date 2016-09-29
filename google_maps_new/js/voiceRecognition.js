@@ -1,4 +1,4 @@
-var final_transcript = '';
+var final_transcript = null;
 var recognizing = false;
 var ignore_onend;
 var start_timestamp;

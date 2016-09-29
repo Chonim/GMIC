@@ -219,6 +219,9 @@ function autoComplete() {
   autocomplete = new google.maps.places.Autocomplete(input, {
     componentRestrictions: countryRestrict
   });
+  console.log(autocomplete);
+  console.log(final_transcript);
+
   autocomplete.bindTo('bounds', map);
   autocomplete.addListener('place_changed', function() {
     getAutocompleteResult()
@@ -1221,10 +1224,15 @@ $(document).ready(function() {
 
     function toShowHomeOrWork(toWhere) {
       if (confirm(toWhere + "으로 길안내를 시작합니다?")) {
-        showHomeOrWork(toWhere)
+        showHomeOrWork(toWhere);
+      } else {
+        $('.sidenav a').css("color", "#818181");
       }
     }
   })
 
+  $('#sendETA').click(function() {
+    window.location.href = "mailto:help@sphinfo.co.kr?subject=나의 도착 예정시간&body=저의 도착 예정시간은" + $('.showTime').html() + " 입니다.";
+  })
 
 })
