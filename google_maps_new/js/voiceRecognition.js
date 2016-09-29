@@ -116,7 +116,7 @@ if (!('webkitSpeechRecognition' in window)) {
 
       } else {
         interim_transcript += event.results[i][0].transcript;
-        console.log("interim_transcript: '" + interim_transcript + "'");
+        // console.log("interim_transcript: '" + interim_transcript + "'");
         if (interim_transcript == " bye bye") {
           startButton(event);
         }

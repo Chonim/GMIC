@@ -484,6 +484,11 @@ function createMarker(place) {
     infowindow.open(map, this);
   });
 }
+
+function triggerGasMarkerClick(index) {
+  google.maps.event.trigger(markersArray[parseInt(index)+1], 'click');
+}
+
 // Place Search End
 function markerOnClick() {
   $('#gasStationInfoBar').hide('fast');
@@ -530,7 +535,7 @@ function distanceMatrix() {
 
 function showGasStationsInfo() {
   for (i=0; i<distanceMatrixArray.length; i++) {
-    var gasStationText = "<div class='gasStation col-sm-10'><img src='image/gas-station.png' />"
+    var gasStationText = "<div class='gasStation col-sm-10' onclick='triggerGasMarkerClick(\"" + i + "\")'><img src='image/gas-station.png' />"
                        + "<span width='60%'><strong>" + gasStationTextArray[i][0] + "</strong><br />" // 이름
                        + gasStationTextArray[i][1] + "</span><span>" // 주소
                        + distanceMatrixArray[i][0] + "<br />" // 거리
@@ -1130,10 +1135,6 @@ $(document).ready(function() {
   });
 
   $('#pac-input').keypress(function(e) {
-    if (e.which == 13) {
-      // When enter pressed
-      codeAddress($('#pac-input').val())
-    }
   })
 
   $('#header-back').click(function() {
