@@ -588,3 +588,8 @@ select option {
     font-size: 1px;
     width: 30px;
 }
+
+#route-modal-content {
+  height: 450px;
+  overflow-y: scroll;
+}

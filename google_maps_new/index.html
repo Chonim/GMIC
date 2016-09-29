@@ -161,13 +161,13 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h3 class="modal-title">나중에 주행하시겠어요?</h4>
+            <h3 class="modal-title">경로 안내를 종료할까요?</h4>
           </div>
           <div class="modal-body">
-            <div class="col-sm-12">주행 일정을 계획하시고 약속 시간에 맞춰 출발 시간 알림을 받으세요.</div>
+            <div class="col-sm-12">예를 누르면 경로 안내를 종료합니다.</div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-6"><button type="button" class="btn btn-default btn-block">아니요, 됐어요</button></div>
+            <div class="col-sm-6"><button type="button" class="btn btn-default btn-block" data-dismiss="modal">아니요</button></div>
             <div class="col-sm-6"><button type="button" class="btn btn-info btn-block" id="navagationClose" data-dismiss="modal">예</button></div>
           </div>
         </div>
@@ -200,7 +200,6 @@
     <div id="settingModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
-        <!-- Favorites -->
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -249,6 +248,26 @@
                 </div>
               </div> -->
               <!-- 길안내 자막 언어. 스피치 언어 설정, 배경맵 설정(hybrid/roadmap) -->
+            </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default optionCloseBtn" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Setting Modal -->
+    <div id="routeModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">전체 경로</h4>
+          </div>
+          <div class="modal-body option-modal-body">
+            <div class="modal-content-container" id="route-modal-content">
             </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default optionCloseBtn" data-dismiss="modal">Close</button>
@@ -316,9 +335,9 @@
           <div id="addWaypoints"><img src="image/add-waypoint.png" /> 경유지 추가
           </div>
           <div class="middleFunctions">
-            <div class="col-sm-4">
+            <div class="col-sm-4" id="openRouteModal">
               <div id=""><img src="image/road.png" /></div>
-              <div id="alternativePaths">경로</div>
+              <div>경로</div>
             </div>
             <div class="col-sm-4">
               <a href="#" id="sendETA">

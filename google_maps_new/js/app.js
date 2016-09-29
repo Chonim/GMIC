@@ -655,7 +655,7 @@ function getEstimatedDetails(wypts) {
 
   directionsService.route(request, function(response) {
     destinationDetails = response.routes[0].legs[0];
-    console.log(destinationDetails)
+    console.log(response)
     directionsDisplay.setDirections(response);
     directionsDisplay.setMap(map);
     $('#autocompletePlaceDistance').html(destinationDetails.distance.text + " 떨어져 있음");
@@ -737,6 +737,7 @@ function animate(path) {
         // Change zoom when there is an instruction
         if (leg < steps.length) {
           $('#header-title').html(steps[leg].instructions);
+          // $('#route-modal-content > div > div:nth-child(' + leg + ')').css("font-weight","bold");
 
           var text = $('#header-title').text();
           var voices;
@@ -842,6 +843,15 @@ function showTravelDetails() {
     var originalSteps = originalRoutes.legs[i].steps;
     for (j=0;j<originalSteps.length;j++) {
       steps.push(originalSteps[j]);
+      console.log(originalSteps[j].instructions);
+      var maneuver = "";
+      if (originalSteps[j].maneuver !== "") {
+        maneuver = "(" + originalSteps[j].maneuver + ") ";
+      }
+      $('#route-modal-content').append('<div class="col-sm-12 option-modal-contents"><div class="col-sm-12">'
+                                       + (j+1) + '. ' + maneuver
+                                       + originalSteps[j].instructions
+                                       + '</div></div>');
     }
   }
 
@@ -1233,6 +1243,11 @@ $(document).ready(function() {
 
   $('#sendETA').click(function() {
     window.location.href = "mailto:help@sphinfo.co.kr?subject=나의 도착 예정시간&body=저의 도착 예정시간은" + $('.showTime').html() + " 입니다.";
+  })
+
+  $('#openRouteModal').click(function() {
+    $('#routeModal').modal('show');
+    clearTimeout(triggerRealDeparture);
   })
 
 })
