@@ -248,7 +248,7 @@ function getAutocompleteResult() {
       //do something special
       infowindow.close();
       marker.setVisible(true);
-      if (autocomplete !== null && final_transcript == null) {
+      if (autocomplete !== null && final_transcript == null && typeof autocomplete.getPlace() !== 'undefined' ) {
         place = autocomplete.getPlace();
         console.log(place);
         getPlaceAddress();
@@ -355,6 +355,8 @@ function codeAddress(address) {
       getAutocompleteResult();
     } else {
       console.log("Geocode was not successful for the following reason: " + status);
+      $('#cancelBtn').trigger("click");
+      alert("검색 결과가 없습니다");
     }
   });
 
@@ -460,36 +462,39 @@ function gasMapCallback(results, status) {
 }
 
 function createMarker(place) {
-  if (currentLocationArray.length < 10) {
-    currentLocationArray.push(currentLocation);
-    gasStationLatlngArray.push(place.geometry.location);
-    gasStationTextArray.push([place.name, place.vicinity])
-  }
-  var marker = new google.maps.Marker({
-    position: place.geometry.location,
-    map: map,
-    icon: 'image/gas-station.png'
-    // icon: place.icon
-  });
-  markersArray.push(marker);
-
-  google.maps.event.addListener(marker, 'click', function() {
-    autocompletePlaceName = place.name;
-    address = place.vicinity;
-    if (isWaypoint == true) {
-      waypointCoords = place.geometry.location;
-    } else {
-      finalDestinationCoords = place.geometry.location;
+  if (typeof place.geometry !== 'undefined') {
+    if (currentLocationArray.length < 10) {
+      currentLocationArray.push(currentLocation);
+      gasStationLatlngArray.push(place.geometry.location);
+      gasStationTextArray.push([place.name, place.vicinity])
     }
-    infowindow.setContent("<p><b>"+ place.name + "</b></p>" +
-                          "<p>" + place.vicinity + "<p>" +
-                          "<p><button onclick='markerOnClick()'>목적지로 설정</button><p>");
-    infowindow.open(map, this);
-  });
+    var marker = new google.maps.Marker({
+      position: place.geometry.location,
+      map: map,
+      icon: 'image/gas-station.png'
+      // icon: place.icon
+    });
+    markersArray.push(marker);
+
+    google.maps.event.addListener(marker, 'click', function() {
+      autocompletePlaceName = place.name;
+      address = place.vicinity;
+      if (isWaypoint == true) {
+        waypointCoords = place.geometry.location;
+      } else {
+        finalDestinationCoords = place.geometry.location;
+      }
+      infowindow.setContent("<p><b>"+ place.name + "</b></p>" +
+      "<p>" + place.vicinity + "<p>" +
+      "<p><button onclick='markerOnClick()'>목적지로 설정</button><p>");
+      infowindow.open(map, this);
+    });
+  }
 }
 
 function triggerGasMarkerClick(index) {
   google.maps.event.trigger(markersArray[parseInt(index)+1], 'click');
+  map.setZoom(15);
 }
 
 // Place Search End
@@ -604,6 +609,7 @@ function closeRightBar() {
   $('#map').css('width', '100%');
   $('#map').css('float', 'right');
   resizeMap();
+  final_transcript == null
   autocompleteClicked = 0;
 }
 
@@ -637,6 +643,7 @@ function getEstimatedDetails(wypts) {
 
   if (directionsDisplay !== null) {
     directionsDisplay.setMap(null);
+    directionsDisplay = null;
   }
 
   directionsService = new google.maps.DirectionsService;
@@ -898,11 +905,6 @@ function showTravelDetails() {
     }
   );
   map.setStreetView(panorama);
-  //
-  // $('#destinationRoutes').html("<img src='https://maps.googleapis.com/maps/api/streetview?size=500x500&location="
-  //               							+ finalDestinationCoords
-  //               							+ "&heading=151.78&pitch=-0.76&key=AIzaSyBsYVLaGllEz-XZYoF6xv_wqPsrG0k7oFs"
-  //               							+ "'>")
 }
 
 function calculateRemainDuration(remainMinutes, remainHours, remainDays) {
@@ -1080,24 +1082,9 @@ $(document).ready(function() {
     $('#navigationBottomBar').show('fast');
 
     // Automatic transition to navigation
-    triggerRealDeparture = setTimeout(function() {
-      $('#realDeparture').trigger("click");
-    }, 10000);
-
-    // // Set timer to check if user is idle
-    // var idleTimer;
-    // // clear prior timeout, if any
-    // $('body').hover(function(){
-    //   console.log("dddd")
-    //   window.clearTimeout(idleTimer);
-    //
-    //   // create new timeout (3 mins)
-    //   idleTimer = window.setTimeout(isIdle, 3000);
-    // })
-    //
-    // function isIdle() {
+    // triggerRealDeparture = setTimeout(function() {
     //   $('#realDeparture').trigger("click");
-    // }
+    // }, 10000);
   })
 
   $('.navigationBottomBarTitle').click(function() {
@@ -1174,6 +1161,7 @@ $(document).ready(function() {
   })
 
   $('#addWaypoints').click(function() {
+    $('#header').hide();
     clearTimeout(triggerRealDeparture);
     isWaypoint = true;
     navigationBottomBarToggle();

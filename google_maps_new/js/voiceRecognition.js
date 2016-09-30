@@ -96,11 +96,11 @@ if (!('webkitSpeechRecognition' in window)) {
         console.log("result");
         $('#pac-input').val(final_transcript);
         $('#waitDialog').modal("hide");
-        codeAddress(final_transcript);
         // setTimeout(function() {
         // }, 2000);
         recognition.stop();
         recognizing = false;
+        codeAddress(final_transcript);
 
         console.log("final_transcript: '" + final_transcript + "'");
 
