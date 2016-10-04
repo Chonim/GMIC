@@ -57,7 +57,6 @@ var icon = {
   fillOpacity: 1,
   fillColor: '#404040',
   offset: '5%',
-  // rotation: parseInt(heading[i]),
   anchor: new google.maps.Point(10, 25) // orig 10,50 back of car, 10,0 front of car, 10,25 center of car
 };
 
@@ -168,47 +167,47 @@ function drawCircle() {
 }
 
 function addYourLocationButton(map, marker) {
-    var controlDiv = document.createElement('div');
-    var firstChild = document.createElement('button');
-    firstChild.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-    firstChild.style.border = 'none';
-    firstChild.style.outline = 'none';
-    firstChild.style.width = '28px';
-    firstChild.style.height = '28px';
-    firstChild.style.cursor = 'pointer';
-    firstChild.style.marginRight = '10px';
-    firstChild.style.padding = '0px';
-    firstChild.title = 'My Location';
-    controlDiv.appendChild(firstChild);
+  var controlDiv = document.createElement('div');
+  var firstChild = document.createElement('button');
+  firstChild.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+  firstChild.style.border = 'none';
+  firstChild.style.outline = 'none';
+  firstChild.style.width = '28px';
+  firstChild.style.height = '28px';
+  firstChild.style.cursor = 'pointer';
+  firstChild.style.marginRight = '10px';
+  firstChild.style.padding = '0px';
+  firstChild.title = 'My Location';
+  controlDiv.appendChild(firstChild);
 
-    var secondChild = document.createElement('div');
-    secondChild.style.margin = '0px';
-    secondChild.style.width = '32px';
-    secondChild.style.height = '32px';
-    secondChild.style.backgroundImage = 'url(image/located.png)';
-    secondChild.style.backgroundSize = '32px 32px';
-    secondChild.style.backgroundPosition = '0px 0px';
-    secondChild.style.backgroundRepeat = 'no-repeat';
-    secondChild.id = 'you_location_img';
-    firstChild.appendChild(secondChild);
+  var secondChild = document.createElement('div');
+  secondChild.style.margin = '0px';
+  secondChild.style.width = '32px';
+  secondChild.style.height = '32px';
+  secondChild.style.backgroundImage = 'url(image/located.png)';
+  secondChild.style.backgroundSize = '32px 32px';
+  secondChild.style.backgroundPosition = '0px 0px';
+  secondChild.style.backgroundRepeat = 'no-repeat';
+  secondChild.id = 'you_location_img';
+  firstChild.appendChild(secondChild);
 
-    firstChild.addEventListener('click', function() {
-        var imgX = '0';
-        var animationInterval = setInterval(function(){
-            if(imgX == '-18') imgX = '0';
-            else imgX = '-18';
-            $('#you_location_img').css('background-position', imgX+'px 0px');
-        }, 500);
-        var latlng = currentLocation;
-        marker.setPosition(latlng);
-        map.setCenter(latlng);
-        map.setZoom(18);
-        clearInterval(animationInterval);
-        // $('#you_location_img').css('background-position', '-144px 0px');
-    });
+  firstChild.addEventListener('click', function() {
+    var imgX = '0';
+    var animationInterval = setInterval(function(){
+        if(imgX == '-18') imgX = '0';
+        else imgX = '-18';
+        $('#you_location_img').css('background-position', imgX+'px 0px');
+    }, 500);
+    var latlng = currentLocation;
+    marker.setPosition(latlng);
+    map.setCenter(latlng);
+    map.setZoom(18);
+    clearInterval(animationInterval);
+    // $('#you_location_img').css('background-position', '-144px 0px');
+  });
 
-    controlDiv.index = 1;
-    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(controlDiv);
+  controlDiv.index = 1;
+  map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(controlDiv);
 }
 
 function autoComplete() {
@@ -435,6 +434,13 @@ function gasMap() {
 
   // Reset directions
   turnOffDirections();
+  currentLocationArray = [];
+  gasStationLatlngArray = [];
+  distanceMatrixArray = [];
+  gasStationTextArray = [];
+  $('.gasStation').remove();
+
+
   directionsDisplay = new google.maps.DirectionsRenderer;
   if (typeof directionsDisplay !== "undefined") {
     directionsDisplay.setMap(map);

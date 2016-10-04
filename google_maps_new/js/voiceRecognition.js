@@ -107,13 +107,6 @@ if (!('webkitSpeechRecognition' in window)) {
         // autoComplete();
         // getAutocompleteResult();
 
-        // 문자 인식 부분
-        if (final_transcript == "bye bye" || interim_transcript == " bye bye") {
-
-        } else if (final_transcript == "잘가" || final_transcript == " 잘가") {
-
-        }
-
       } else {
         interim_transcript += event.results[i][0].transcript;
         // console.log("interim_transcript: '" + interim_transcript + "'");
