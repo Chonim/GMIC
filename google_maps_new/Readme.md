@@ -1,7 +1,5 @@
 #Google MIC prototype
 
----
-
 ##This app only works correctly on Nexus 7 screen size(900px * 600px)
 
 ##Features
